@@ -1,0 +1,77 @@
+// Author: _Sherbiny
+// Problem: https://codeforces.com/gym/101498/problem/L
+#include "bits/stdc++.h"
+using namespace std;
+typedef long long ll;
+#define endl '\n'
+void fileIO() {
+#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+    freopen("error.txt", "w", stderr);
+#endif
+}
+#define Ready ios_base::sync_with_stdio(false); cin.tie(nullptr); cout.tie(nullptr); fileIO();
+//////////////////////////////////////////////////////////////////////////////////////////////
+int tc = 0;
+struct Edge {
+    int u, v, c;
+    Edge(int U, int V, int C) {
+        u = U,
+        v = V,
+        c = C;
+    }
+};
+
+const ll oo = 1e18;
+int n, m;
+bool cycle = false;
+vector<Edge> edges;
+
+vector<ll> bellmanMultisource(int root) {
+    vector<ll> dist(n + 1, 0);
+
+    bool flag = true;
+    int cnt = 0; // if cnt > n - 1 there is a negative cycle
+    while(flag) {
+        cnt++;
+        flag = false;
+        for(Edge e : edges)
+            if(dist[e.u] > dist[e.v] + e.c)
+                dist[e.u] = dist[e.v] + e.c, flag = true;
+
+        if(cnt > n) {
+            cycle = true;
+            break;
+        };
+    }
+    return dist;
+}
+
+signed main() {
+    Ready
+    int t; cin >> t;
+    while(tc < t) {
+        tc++;
+        cycle = false;
+        edges.clear();
+        cin >> n >> m;
+        ll mn = oo;
+        for(int i = 0; i < m; ++i) {
+            int u, v, c; cin >> u >> v >> c;
+            edges.push_back({u, v, c});
+            mn = min(mn, (ll)c);
+        }
+
+        if(mn >= 0) {
+            cout << mn << endl;
+            continue;
+        }
+
+        vector<ll> dist = bellmanMultisource(0);
+        ll res = oo;
+        for(int i = 1; i <= n; ++i) res = min(res, dist[i]);
+        if(cycle) cout << "-inf" << endl;
+        else cout << res << endl;
+    }
+}
