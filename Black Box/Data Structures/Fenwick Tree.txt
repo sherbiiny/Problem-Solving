@@ -1,0 +1,36 @@
+const int N= 1e5 + 5;
+struct FenwickTree {
+    ll bit[N]{};
+
+    void updateBit(int ind, ll val) {
+        while(ind < N) {
+            bit[ind] += val;
+            ind += (ind & (-ind));
+        }
+    }
+
+    FenwickTree() {
+        for (ll & i : bit) i = 0;
+    }
+
+    FenwickTree(int n, vi v) {
+        for (ll & i : bit) i = 0;
+        for (int i = 1; i <= n; i++) updateBit(i, v[i - 1]);
+    }
+
+    void updateRange(int l, int r, ll val) {
+        updateBit(l, val);
+        updateBit(r + 1, -val);
+    }
+
+    ll query(int idx) {
+        ll ret = 0;
+        while(idx > 0) {
+            ret += bit[idx];
+            idx -= idx & -idx;
+        }
+        return ret;
+    }
+
+    ll prefix(int l,int r) { return query(r) - query(l - 1); }
+};

@@ -1,0 +1,236 @@
+summation of the first n elemenys from any series (1,1+k,1+2k,1+3k,1+4k,.......,1+nk)
+difference(step) = k
+a = the first element -> (almost 1)
+n = number of elements
+(n(2a + (n - 1)d))/2
+
+///////////////////////
+    int & ret = dp[row][col][dir][turns];
+    if(vis[row][col][dir][turns]) return ret;
+    vis[row][col][dir][turns] = 1;
+/////////////////////////////////////////
+ld dist(ld x1, ld y1, ld x2, ld y2){
+    return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
+ld getside_a_bAB(ld b, ld A, ld B){
+    return sin(A) * b / sin(B);
+}
+
+ld getangle_A_abB(ld a, ld b, ld B){
+    return asin(a * sin(B)/b);
+}
+
+ld getangle_A_abc(ld a, ld b, ld c){
+    return acos((b * b + c * c - a * a)/(2 * b * c));
+}
+
+
+ll mod(ll a, ll b){return (a%b + b) % b;}
+
+ll fastpow(ll a, ll b, ll m){ // a^b
+    if(b == 0) return 1;
+    if(b & 1) return (a % m) * (fastpow((a % m) * (a % m) % m,b/2,m) % m) % m ;
+    return fastpow((a % m) * (a % m) % m,b/2, m);
+}
+
+bool is_prime(ll num) {
+    if (num == 2) return true;
+    if (num < 2 || !(num % 2)) return false;
+
+    for (ll i = 3; i * i <= num; i += 2) {
+        if (!(num % i)) return false;
+    }
+
+    return true;
+}
+
+vl get_divisors(ll num) {
+
+    vl divisors;
+
+    ll i;
+    for (i = 1; i * i < num; i++) {
+        if (!(num % i)) {
+            divisors.push_back(i);
+            divisors.push_back(num / i);
+        }
+    }
+    if((i * i) == num) divisors.push_back(i);
+    sort(all(divisors));
+    return divisors;
+}
+
+ll count_divisors(ll num) {
+
+    ll i, counter = 0;
+    for (i = 1; i * i < num; i++) {
+        if (!(num % i)) counter += 2;
+    }
+    if ((i * i) == num) counter++;
+
+    return counter;
+}
+
+vl prime_factorization(ll num) {
+
+    vl factors;
+
+    if (num < 2) return factors;
+
+    while (!(num % 2)) {
+        factors.push_back(2);
+        num /= 2;
+    }
+
+    for (ll i = 3; i * i <= num; i += 2) {
+        while (!(num - num/i * i)) {
+            factors.push_back(i);
+            num /= i;
+        }
+    }
+
+    if (num > 1) factors.push_back(num);
+
+    return factors;
+}
+
+ll LCM(ll a, ll b) {
+    ll maximum = max(a, b);
+    ll minimum = min(a, b);
+    ll add_n = maximum;
+
+    for (; maximum % minimum; maximum += add_n);
+    return maximum;
+}
+
+
+
+int decimal(string binary){
+    int decimal = 0, mult = 1;
+    for(int i = binary.size() - 1; i >=0 ; i--){
+        if(binary[i] == '1') decimal +=mult;
+        mult <<= 1;
+    }
+    return decimal;
+}
+
+vb prime_range_sieve(ll num) {
+
+    vb primes(num + 1, true);
+    primes[0] = primes[1] = false;
+
+    for (ll i = 2; i * i <= num; i++) {
+        for (ll j = i * i; primes[i] && j <= num; j += i) {
+            primes[j] = false;
+        }
+    }
+
+    return primes;
+}
+
+vb prime_range_linear_sieve(ll num) {
+
+    vl primes;
+    vb is_prime(num + 1, true);
+
+    is_prime[0] = is_prime[1] = false;
+
+    for (ll i = 2; i <= num; i++) {
+        if(is_prime[i]) primes.push_back(i);
+        for (ll j = 0;j < primes.size() && i * primes[j] <= num ; j ++) {
+            is_prime[i * primes[j]] = false;
+            if(i % primes[j] == 0) break;
+        }
+    }
+
+    return is_prime;
+}
+
+vb prime_range_segmented_sieve(ll l, ll r){
+    vl primes;
+    ll num = sqrt(r);
+    vb is_prime(num + 1, true);
+
+
+    is_prime[0] = is_prime[1] = false;
+    for (ll i = 2; i <= num; i++) {
+        if(is_prime[i]) primes.push_back(i);
+        for (ll j = 0;j < primes.size() && i * primes[j] <= num ; j ++) {
+            is_prime[i * primes[j]] = false;
+            if(i % primes[j] == 0) break;
+        }
+    }
+
+    is_prime.clear();
+    is_prime.resize(r - l + 1, true);
+
+    if(l <= 1) is_prime[0] = 0;
+
+    for(ll i : primes){
+        for(ll j = max(i * i, (l + i - 1)/i * i); j <= r; j += i){
+            is_prime[j - l] = false;
+        }
+    }
+
+    return is_prime;
+}
+
+ll extended_eculidean_algorithm(ll a, ll b, ll & x, ll & y){
+    if(b == 0){
+        x = 1;
+        y = 0;
+        return a;
+    }
+
+    ll x1, y1;
+    ll d = extended_eculidean_algorithm(b,a%b,x1,y1);
+    x = y1;
+    y = x1 - y1 * (a/b);
+    return d;
+}
+
+vector<pair<ll,ll>> generate_solve_Ax_plus_By_equal_gcd_ab(int a, int b){
+    int x,y,g;
+    g = extended_eculidean_algorithm(a,b,x,y);
+    //ax+by=gcd(a,b)
+    //a(x + c1*n) + b(y + c2*n)=gcd(a,b)
+    //a * c1 * n = - b * c2 * n;
+    //a * c1 = b * c2
+    //c1 = a/gcd(a,b), c2 = -b/gcd(a,b)
+    int c1 = b/g, c2 = -a/g;
+    vector<pair<ll,ll>> v;
+    while(x < 1e6 && b > -1e6){
+        v.PB(MP(x,y));
+        x += c1;
+        y += c2;
+    }
+    return v;
+}
+
+ll mod_inverse_ecludien(ll a, ll m){
+    int x, _;
+    extended_eculidean_algorithm(a, m,x,_);
+    return (x%m+m)%m;
+}
+
+
+ll mod_inverse_fermat(ll a, ll m){
+    ll x = fastpow(a,m - 2, m);
+    return (x%m + m)%m ;
+}
+
+
+
+ll factorial[N];
+
+void generate_fact() {
+    factorial[0] = 1;
+    for (int i = 1; i < N; ++i)
+        factorial[i] = i * factorial[i - 1] % MOD;
+}
+
+ll NCR(ll n, ll R){
+    return factorial[n] % MOD * mod_inverse_ecludien(factorial[n - R], MOD) % MOD * mod_inverse_ecludien(factorial[R], MOD)%MOD;
+}
+///////////////////////////

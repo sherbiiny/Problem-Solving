@@ -1,0 +1,60 @@
+const int N = 2e5 + 5;
+int parent[N], set_size[N];
+
+void make_set(int u)
+{
+    parent[u] = u;
+    set_size[u] = 1;
+}
+
+int find_set(int u)
+{
+    if(parent[u] == u)
+        return u;
+    return parent[u] = find_set(parent[u]);
+}
+
+bool union_set(int u, int v)
+{
+    int a = find_set(u);
+    int b = find_set(v);
+    if(a == b)
+        return 0;
+
+    if(set_size[a] > set_size[b])
+    {
+        parent[b] = a;
+        set_size[a] += set_size[b];
+    }
+    else
+    {
+        parent[a] = b;
+        set_size[b] += set_size[a];
+    }
+
+    return 1;
+}
+
+
+-------------------------------------------------------------
+
+struct Edge
+{
+    int u, v, w;
+};
+
+pair<vector<pair<int, int>>, long long > MST(vector<Edge> & edges)
+{
+    sort(all(edges), [](Edge A, Edge B){return A.w < B.w;});
+
+    vector<pair<int, int>> MST_edges;
+    long long MST_Cost = 0;
+    for(auto & [u, v, w] : edges)
+    {
+        if(union_set(u, v))
+        {
+            MST_edges.PB({u, v});
+            MST_Cost += w;
+        }
+    }
+}

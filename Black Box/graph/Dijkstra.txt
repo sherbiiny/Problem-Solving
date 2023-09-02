@@ -1,0 +1,22 @@
+vector<int> dijkstra(int s) {
+    priority_queue<pi> pq;
+    vi dist(n + 1, oo);
+    dist[s] = 0;
+    pq.push({0, s});
+
+    while(!pq.empty()) {
+        int w = -pq.top().first;
+        int node = pq.top().second;
+        pq.pop();
+
+        if(w > dist[node]) continue;
+
+        for(pi child : adj[node]) {
+            if(dist[child.second] > dist[node] + child.first) {
+                dist[child.second] = dist[node] + child.first;
+                pq.push({-dist[child.second], child.second});
+            }
+        }
+    }
+    return dist;
+}
