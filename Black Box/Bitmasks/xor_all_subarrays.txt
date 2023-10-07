@@ -1,0 +1,62 @@
+int calcSubArrayXORSum(vector<int> arr) {
+    int n = sz(arr);
+    int sum = 0;
+    int multiplier = 1;
+    for (int i = 0; i < 30; i++) {
+        int oddCount = 0;
+        bool isOdd = 0;
+        for (int j = 0; j < n; j++) {
+            if ((arr[j] & (1 << i)) > 0)
+                isOdd = (!isOdd);
+            if (isOdd)
+                oddCount++;
+        }
+        for (int j = 0; j < n; j++) {
+            sum += (multiplier * oddCount);
+            if ((arr[j] & (1 << i)) > 0)
+                oddCount = (n - j - oddCount);
+        }
+        multiplier *= 2;
+    }
+    return sum;
+}
+
+
+
+
+// same code but each subarray is multiplied with its length
+
+const int mod = 998244353;
+int calcSubArrayXORSum(vector<int> arr) {
+    int n = sz(arr);
+    int sum = 0;
+    int multiplier = 1;
+    for (int i = 0; i < 30; i++) {
+        int oddCount = 0;
+        bool isOdd = 0;
+        int tot = 0;
+        for (int j = 0; j < n; j++) {
+            if ((arr[j] & (1 << i)) > 0)
+                isOdd = (!isOdd);
+            if (isOdd)
+            {
+                oddCount++;
+                tot += j + 1;
+            }
+        }
+        for (int j = 0; j < n; j++) {
+            sum += ((multiplier % mod) * (tot % mod)) % mod;
+            sum %= mod;
+            if ((arr[j] & (1 << i)) > 0)
+            {
+                oddCount = (n - j - oddCount);
+                tot = (n-j) * (n - j + 1) / 2 - tot;
+                tot -= oddCount;
+            }
+            else
+                tot -= oddCount;
+        }
+        multiplier *= 2;
+    }
+    return sum;
+}

@@ -6,3 +6,8 @@ ll GCD(ll a, ll b) {
 ll LCM(ll a, ll b) {
     return a / GCD(a, b) * b;
 }
+
+ll nCr(ll N, ll r) {
+    if (r == 0) return 1;
+    return nCr(N, r - 1) * (N - r + 1) / r;
+}
