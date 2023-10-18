@@ -6,6 +6,7 @@ bool isPrime(ll n) {
     return res;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
 vector<bool> prime;
 vector<int> primes;
 
@@ -21,4 +22,23 @@ vector<int> Sieve(int n) {
     // If needed
     for(int i = 2; i <= n; ++i) if(prime[i]) primes.push_back(i);
     return primes;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+ll countDivisors(ll x) {
+    int res = 1;
+    for(int p : primes) {
+        if(p * p > x) break;
+        if(x % p) continue;
+        int cnt = 0;
+        while(x % p == 0) {
+            x /= p;
+            ++cnt;
+        }
+        res *= cnt + 1;
+    }
+
+    if(x > 1) res *= 2;
+
+    return res % mod;
 }
