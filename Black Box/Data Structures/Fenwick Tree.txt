@@ -1,21 +1,20 @@
-const int N= 1e5 + 5;
 struct FenwickTree {
-    ll bit[N]{};
+    vector<ll> bit;
+    int n;
 
     void updateBit(int ind, ll val) {
-        while(ind < N) {
+        for (; ind < n; ind = ind | (ind + 1))
             bit[ind] += val;
-            ind += (ind & (-ind));
-        }
     }
 
-    FenwickTree() {
-        for (ll & i : bit) i = 0;
+    FenwickTree(int n) {
+        this->n = n;
+        bit.assign(n, 0);
     }
 
-    FenwickTree(int n, vi v) {
-        for (ll & i : bit) i = 0;
-        for (int i = 1; i <= n; i++) updateBit(i, v[i - 1]);
+    FenwickTree(vector<int> const &a) : FenwickTree(a.size()) {
+        for (size_t i = 0; i < a.size(); i++)
+            updateBit(i, a[i]);
     }
 
     void updateRange(int l, int r, ll val) {
@@ -23,12 +22,10 @@ struct FenwickTree {
         updateBit(r + 1, -val);
     }
 
-    ll query(int idx) {
+    ll query(int r) {
         ll ret = 0;
-        while(idx > 0) {
-            ret += bit[idx];
-            idx -= idx & -idx;
-        }
+        for (; r >= 0; r = (r & (r + 1)) - 1)
+            ret += bit[r];
         return ret;
     }
 
