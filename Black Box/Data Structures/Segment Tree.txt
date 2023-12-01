@@ -27,6 +27,27 @@ struct Sagara {
         return res;
     }
 
+    void build(vector<int> &v, int x, int lx, int rx) {
+        if(rx - lx == 1) {
+            if(lx < v.size())
+                node[x] = Node(v[lx]);
+            return;
+        }
+
+        int m = lx + (rx - lx) / 2;
+        int left = x * 2 + 1;
+        int right = left + 1;
+
+        build(v, left, lx, m);
+        build(v, right, m, rx);
+
+        node[x] = merge(node[left], node[right]);
+    }
+
+    void build(vector<int> &v) {
+        build(v, 0, 0, n);
+    }
+
     void set(int &ind, ll &val, int x, int lx, int rx) {
         if(rx - lx == 1) {
             if(ind == lx) node[x] = Node(val);
