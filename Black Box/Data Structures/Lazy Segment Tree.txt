@@ -1,0 +1,174 @@
+// Author: _Sherbiny
+
+#include "bits/stdc++.h"
+
+using namespace std;
+typedef long long ll;
+
+#define endl '\n'
+void fileIO() {
+#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+}
+#define Ace ios_base::sync_with_stdio(false); cin.tie(nullptr); cout.tie(nullptr); fileIO();
+//////////////////////////////////////////////////////////////////////////////////////////////
+struct Node {
+    ll neutral = 0;
+    ll val;
+    ll lazy;
+    bool isLazy;
+
+    Node() {
+        val = neutral;
+        lazy = 0;
+        isLazy = 0;
+    }
+
+    Node(int x) {
+        val = x;
+        lazy = 0;
+        isLazy = 0;
+    }
+
+    void add(int x, int lx, int rx) {
+        lazy += x;
+        val += (rx - lx) * x;
+        isLazy = 1;
+    }
+};
+
+struct Sagara {
+    int n;
+    vector<Node> node;
+
+    Sagara(int sz) {
+        n = 1;
+        while(n < sz) n *= 2;
+        node.assign(n * 2, Node());
+    }
+
+    Node merge(Node &l, Node &r) {
+        Node res = Node();
+        res.val = l.val + r.val;
+        return res;
+    }
+
+    void build(vector<int> &v, int x, int lx, int rx) {
+        if(rx - lx == 1) {
+            if(lx < v.size())
+                node[x] = Node(v[lx]);
+            return;
+        }
+
+        int m = lx + (rx - lx) / 2;
+        int left = x * 2 + 1;
+        int right = left + 1;
+
+        build(v, left, lx, m);
+        build(v, right, m, rx);
+
+        node[x] = merge(node[left], node[right]);
+    }
+
+    void build(vector<int> &v) {
+        build(v, 0, 0, n);
+    }
+
+    void propagate(int x, int lx, int rx) {
+        if(rx - lx == 1 || !node[x].isLazy) return;
+
+        int m = lx + (rx - lx) / 2;
+        int left = x * 2 + 1;
+        int right = left + 1;
+
+        node[left].add(node[x].lazy, lx, m);
+        node[right].add(node[x].lazy, m, rx);
+
+        node[x].lazy = 0;
+        node[x].isLazy = 0;
+    }
+
+    void set(int &ind, int &val, int x, int lx, int rx) {
+        if(rx - lx == 1) {
+            if(ind == lx) node[x] = Node(val);
+            return;
+        }
+
+        propagate(x, lx, rx);
+
+        int m = lx + (rx - lx) / 2;
+        int left = x * 2 + 1;
+        int right = left + 1;
+
+        if(ind < m) set(ind, val, left, lx, m);
+        else set(ind, val, right, m, rx);
+
+        node[x] = merge(node[left], node[right]);
+    }
+
+    void set(int &ind, int &val) {
+        set(ind, val, 0, 0, n);
+    }
+
+    void updateRange(int &l, int &r, int &val, int x, int lx, int rx) {
+        propagate(x, lx, rx);
+        if(lx >= r || rx <= l) return;
+        if(rx <= r && lx >= l) return node[x].add(val, lx, rx);
+
+        int m = lx + (rx - lx) / 2;
+        int left = x * 2 + 1;
+        int right = left + 1;
+
+        updateRange(l, r, val, left, lx, m);
+        updateRange(l, r, val, right, m, rx);
+
+        node[x] = merge(node[left], node[right]);
+    }
+
+    void updateRange(int &l, int &r, int &val) {
+        updateRange(l, r, val, 0, 0, n);
+    }
+
+    Node query(int &l, int &r, int x, int lx, int rx) {
+        propagate(x, lx, rx);
+
+        if(lx >= r || rx <= l) return Node();
+        if(rx <= r && lx >= l) return node[x];
+
+        int m = lx + (rx - lx) / 2;
+        int left = x * 2 + 1;
+        int right = left + 1;
+
+        Node leftPath = query(l, r, left, lx, m);
+        Node rightPath = query(l, r, right, m, rx);
+
+        return merge(leftPath, rightPath);
+    }
+
+    Node query(int &l, int r) {
+        return query(l, r, 0, 0, n);
+    }
+};
+
+signed main() {
+    Ace
+
+    int n, q; cin >> n >> q;
+
+    Sagara tree = Sagara(n);
+
+    while(q--) {
+        int type; cin >> type;
+
+        if(type == 2) {
+            int ind; cin >> ind;
+            cout << tree.query(ind, ind + 1).val << endl;
+        }
+        else {
+            int l, r, val; cin >> l >> r >> val;
+            tree.updateRange(l, r, val);
+        }
+    }
+}
