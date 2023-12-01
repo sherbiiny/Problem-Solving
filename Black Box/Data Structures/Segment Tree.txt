@@ -1,24 +1,3 @@
-// Author: _Sherbiny
-
-#include "bits/stdc++.h"
-
-using namespace std;
-typedef long long ll;
-
-#define endl '\n'
-void fileIO() {
-#ifndef ONLINE_JUDGE
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-#endif
-}
-#define Ace ios_base::sync_with_stdio(false); cin.tie(nullptr); cout.tie(nullptr); fileIO();
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-struct Ring {
-    ll out, in, h;
-};
-
 struct Node {
     ll neutral = 0;
     ll val;
@@ -86,53 +65,3 @@ struct Sagara {
         return query(l, r, 0, 0, n);
     }
 };
-
-bool comp(Ring &l, Ring &r) {
-    if(l.out > r.out) return true;
-    if(l.out < r.out) return false;
-    else return r.in < l.in;
-}
-
-void compress(vector<ll> &a, int start) {
-    int n = a.size();
-    vector<pair<ll, ll>> pairs(n);
-    for(int i = 0; i < n; i++)
-        pairs[i]={a[i],i};
-
-    sort(pairs.begin(), pairs.end());
-
-    int nxt = start;
-    for(int i = 0; i < n; i++)
-        a[pairs[i].second] = nxt++;
-}
-
-signed main() {
-    Ace
-    int n; cin >> n;
-    vector<Ring> v(n);
-
-    for(Ring &r : v)
-        cin >> r.in >> r .out >> r.h;
-
-    sort(v.begin(), v.end(), comp);
-
-    vector<ll> inner(n);
-    for(int i = 0; i < n; ++i) inner[i] = v[i].in;
-    vector<ll> rank = inner;
-    compress(rank, 0);
-    sort(inner.begin(), inner.end());
-
-    Sagara tree = Sagara(n);
-
-    // dp[i] = h[i] + max(v[j].in < v[i].out);
-    ll dp[n + 1];
-    ll ans = 0;
-    for(int i = 0; i < n; ++i) {
-        int en = lower_bound(inner.begin(), inner.end(), v[i].out) - inner.begin();
-        dp[i] = (ll)v[i].h + tree.query(0, en).val;
-        tree.set(rank[i], dp[i]);
-        ans = max(ans, dp[i]);
-    }
-
-    cout << ans;
-}
