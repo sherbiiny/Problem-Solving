@@ -1,0 +1,15 @@
+
+// g is one indexed!!!
+
+for(int i = 0; i <= n; i++)
+    for(int j = 1; j <= m; j++)
+        g[i][j] += g[i][j-1];
+
+for(int i = 1; i <= n; i++)
+    for(int j = 0; j <= m; j++)
+        g[i][j] += g[i-1][j];
+
+while(q--) {
+    int a, b, c, d; cin >> a >> b >> c >> d;
+    cout << g[c][d] + g[a - 1][b - 1] - g[a - 1][d] - g[c][b - 1] << endl;
+}
