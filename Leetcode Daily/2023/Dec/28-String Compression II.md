@@ -33,37 +33,13 @@ public:
 
         for(int i = n - 1; i >= 0; --i) {
             for(int j = 0; j <= k; ++j) {
-                dp[i][j] = 2e9;
+                dp[i][j] = 1 + dp[i+1][j];
                 for(int go = i + 1; go <= n; ++go) {
                     int size = go - i - cost[i][go];
-
                     if(cost[i][go] <= j)
                         dp[i][j] = min(dp[i][j], cnt(size) + dp[go][j - cost[i][go]]);
-                
-
-                    if(size >= 100) {
-                        int need = cost[i][go] + size - 99;
-                        if(need <= j)
-                            dp[i][j] = min(dp[i][j], 3 + dp[go][j - need]);
-                    }
-
-                    if(size > 9) {
-                        int need = cost[i][go] + size - 9;
-                        if(need <= j)
-                            dp[i][j] = min(dp[i][j], 2 + dp[go][j - need]);
-                    }
-
-                    if(size > 1) {
-                        int need = cost[i][go] + size - 1;
-                        if(need <= j)
-                            dp[i][j] = min(dp[i][j], 1 + dp[go][j - need]);
-                    }
-
-                    if(size > 0) {
-                        int need = cost[i][go] + size;
-                        if(need <= j)
-                            dp[i][j] = min(dp[i][j], dp[go][j - need]);
-                    }
+                    if(go - i <= j)
+                        dp[i][j] = min(dp[i][j], dp[go][j - go + i]);
                 }
             }
         }
