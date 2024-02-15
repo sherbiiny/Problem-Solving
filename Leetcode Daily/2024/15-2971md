@@ -1,0 +1,13 @@
+```js
+let largestPerimeter = function(a) {
+  a.sort((a, b) => a-b);
+
+  let res = -1, sum = a[0]+a[1];
+  for(let i = 2; i < a.length; ++i) {
+      if(a[i] < sum) res = sum+a[i];
+      sum += a[i];
+  }  
+
+  return res;
+};
+```
