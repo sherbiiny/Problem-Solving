@@ -1,0 +1,77 @@
+struct Hash {
+    // everything is zero indexed
+    int base, mod, sz;
+    vector<int> pow;
+    vector<int> inv;
+    char startChar = 'a' - 1;
+
+    Hash(int b = 69, int m = 1e9+7, int n = 1e6+2) {
+        base = b;
+        mod = m;
+        sz = n;
+        pow.resize(n+1);
+        inv.resize(n+1);
+        preProcess();
+    }
+
+    void preProcess() {
+        pow[0] = inv[0] = 1;
+        int inv_pw = inverse(base);
+
+        for(int i = 1; i < sz; ++i) {
+            pow[i] = mult(pow[i-1], base);
+            inv[i] = mult(inv[i-1], inv_pw);
+        }
+    }
+
+    vector<int> build(string &s) {
+        int n = s.size();
+        vector<int> hash(n);
+        hash[0] = mult(s[0]-startChar, pow[0]);
+        for(int i = 1; i < n; ++i)
+            hash[i] = add(hash[i-1], mult((s[i]-startChar), pow[i]));
+        return hash;
+    }
+
+    int getFullHash(string &s) {
+        int n = s.size();
+        int res = mult(s[0]-startChar, pow[0]);
+        for(int i = 1; i < n; ++i)
+            res = add(res, mult((s[i]-startChar), pow[i]));
+        return res;
+    }
+
+    // hash value of the string s[l, r] both l, r included
+    int getHash(int l, int r, vector<int> &hash) {
+        int res = hash[r];
+
+        if(l) {
+            res = add(res, -hash[l - 1]);
+            res = mult(res, inv[l]);
+        }
+
+        return res;
+    }
+
+    int add(int a, int b) {
+        int res = a + b;
+        if(res < 0) res += mod;
+        if(res >= mod) res -= mod;
+        return res;
+    }
+
+    int mult(int a, int b) {
+        return 1LL * a * b % mod;
+    }
+
+    int power(int a, int b) {
+        if (b <= 0) return 1;
+        int ret = power(1LL * a * a % mod, b / 2);
+        if(b % 2) ret = 1LL * ret * a % mod;
+        return ret;
+    }
+
+    int inverse(int b) {
+        return power(b, mod - 2);
+    }
+};
