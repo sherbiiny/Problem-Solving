@@ -1,0 +1,78 @@
+struct SuffixArray {
+    int n;
+    vector<int> suff, lcp;
+
+    SuffixArray(int sz) {
+        n = sz + 1;
+        suff.resize(n);
+        lcp.resize(n);
+    }
+
+    void countingSort(vector<int> &p, vector<int> &c) {
+        vector<int> cnt(n);
+        for(int i : c)
+            cnt[i]++;
+
+        vector<int> pos(n);
+        for(int i = 1; i < n; ++i)
+            pos[i] = pos[i-1] + cnt[i-1];
+
+        vector<int> newP(n);
+        for(int i : p)
+            newP[pos[c[i]]++] = i;
+
+        p = newP;
+    }
+
+    void build(string s) {
+        s += '$';
+        vector<int> c(n);
+        vector<pair<char, int>> a(n);
+
+        for(int i = 0; i < n; ++i)
+            a[i] = {s[i], i};
+
+        sort(a.begin(), a.end());
+
+        vector<int> p(n);
+        for(int i = 0; i < n; ++i)
+            p[i] = a[i].second;
+
+        for(int i = 1; i < n; ++i)
+            c[a[i].second] = c[a[i-1].second] + (a[i].first != a[i-1].first);
+
+        int k = 0;
+        while((1<<k) < n) {
+            int bit = 1<<k;
+
+            for(int i = 0; i < n; ++i)
+                p[i] = (p[i] - bit + n) % n;
+
+            countingSort(p, c);
+
+            vector<int> newC(n);
+            for(int i = 1; i < n; ++i) {
+                int currL = p[i], currR = (p[i] + bit) % n;
+                int preL  = p[i-1], preR = (p[i-1] + bit) % n;
+                bool add = (c[currL] != c[preL]) || (c[currR] != c[preR]);
+                newC[p[i]] = newC[p[i-1]] + add;
+            }
+
+            c = newC;
+            ++k;
+        }
+
+        suff = p;
+
+        // Build LCP
+        k = 0;
+        for(int i = 0; i < n - 1; ++i) {
+            int pi = c[i];
+            int j = p[pi - 1];
+            while(s[i+k] == s[j+k])
+                ++k;
+            lcp[pi] = k;
+            k = max(0LL, k - 1);
+        }
+    }
+};

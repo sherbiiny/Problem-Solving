@@ -1,0 +1,127 @@
+vector<vector<int>> adj;
+
+// heavy stores the heavy child for every node
+// head stores the head of the node chain
+// pos stores the index of the node in the linear array
+// linear stores the heavy chains is linear manner
+// sizes stores the number of nodes in the subtree of node (u)
+vector<int> depth, parent, heavy, pos, linear, head, vals, sizes;
+
+// has the current index to add in linear array
+int cnt;
+
+int dfs(int u, int par, int dep)
+{
+    depth[u] = dep;
+    parent[u] = par;
+
+    int sub_size = 1;
+    int heavy_node = -1, maxa = -1;
+    for(auto & v : adj[u])
+    {
+        if(v != par)
+        {
+            int node_size = dfs(v, u, dep + 1);
+            sub_size += node_size;
+            if(node_size > maxa)
+            {
+                maxa = node_size;
+                heavy_node = v;
+            }
+        }
+    }
+    heavy[u] = heavy_node;
+
+    return sizes[u] = sub_size;
+}
+
+void HLD(int u, int chain_head)
+{
+    if(u == -1)
+        return;
+
+    linear[cnt] = vals[u]; // add the value you want to query on
+    pos[u] = cnt++;
+    head[u] = chain_head;
+
+    HLD(heavy[u], chain_head);
+
+    for(auto & v : adj[u])
+    {
+        if(v != parent[u] && v != heavy[u])
+            HLD(v, v);
+    }
+}
+
+int Get_Path(int u, int v, SegTree & st)
+{
+    int ans = 0; // neutral value
+    while (head[u] != head[v])
+    {
+        if(depth[head[u]] > depth[head[v]])
+            swap(u, v);
+        ans = max(ans, st.get_range(pos[head[v]], pos[v] + 1)); // change the operation
+        v = parent[head[v]];
+    }
+    if(depth[u] > depth[v])
+        swap(u, v);
+    ans = max(ans, st.get_range(pos[u], pos[v] + 1)); // change the operation
+
+    return ans;
+}
+
+void Set_Path(int u, int v, int val, SegTree & st)
+{
+    while (head[u] != head[v])
+    {
+        if(depth[head[u]] > depth[head[v]])
+            swap(u, v);
+        st.set(pos[head[v]], pos[v] + 1, val);
+        v = parent[head[v]];
+    }
+    if(depth[u] > depth[v])
+        swap(u, v);
+    st.set(pos[u], pos[v] + 1, val);
+}
+
+int Get_Subtree(int u, SegTree & st)
+{
+    return st.get_range(pos[u], pos[u] + sizes[u]);
+}
+
+void Set_Subtree(int u, int val, SegTree & st)
+{
+    st.set(pos[u], pos[u] + sizes[u], val);
+}
+
+void init(int n)
+{
+    adj.assign(n + 1, {});
+
+    depth.resize(n + 1);
+    parent.resize(n + 1);
+    heavy.resize(n + 1);
+    sizes.resize(n + 1);
+
+    pos.resize(n + 1);
+    head.resize(n + 1);
+    linear.resize(n);
+
+    vals.resize(n + 1);
+
+    cnt = 0;
+}
+
+
+
+/*
+// call this functions in the main after you get the inputs
+
+init(n);
+
+dfs(1, -1, 0);
+HLD(1, 1);
+
+SegTree st = SegTree(n);
+st.init(linear);
+*/

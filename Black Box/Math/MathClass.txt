@@ -66,20 +66,21 @@ struct Math {
     }
 
     T add(T a, T b) {
-        int res = a + b;
+        T res = a + b;
         if(res < 0) res += mod;
         if(res >= mod) res -= mod;
         return res;
     }
 
     T mult(T a, T b) {
-        return 1LL * a * b % mod;
+        return 1LL * (a % mod) * (b % mod) % mod;
     }
 
     T power(T a, T b) {
-        if (b <= 0) return 1;
-        int ret = power(1LL * a * a % mod, b / 2);
-        if(b % 2) ret = 1LL * ret * a % mod;
+        if (b == 0) return 1;
+        if(b < 0) return power(inverse(a), -b);
+        T ret = power(mult(a, a), b / 2);
+        if(b % 2) ret = mult(ret, a);
         return ret;
     }
 
@@ -125,4 +126,32 @@ struct Math {
         return g;
     }
 
+    vector<vector<T>> matrixMult(vector<vector<T>> &a, vector<vector<T>> &b) {
+        int n = a[0].size(), m = b.size(), k = a.size();
+        vector<vector<T>> res(n, vector<T>(m));
+
+        for(int i = 0; i < n; ++i)
+            for(int j = 0; j < m; ++j)
+                for(int o = 0; o < k; ++o)
+                    res[i][j] = add(res[i][j], mult(a[i][o], b[o][j]));
+
+        return res;
+    }
+
+    vector<vector<T>> matrixPower(vector<vector<T>> mat, T p) {
+        int n = mat.size();
+        if(p == 0) {
+            vector<vector<T>> ones(n, vector<T>(n, 0));
+            for(int i = 0; i < n; ++i)
+                ones[i][i] = 1;
+            return ones;
+        }
+
+        vector<vector<T>> ret = matrixPower(matrixMult(mat, mat), p / 2);
+
+        if(p&1)
+            ret = matrixMult(ret, mat);
+
+        return ret;
+    }
 };

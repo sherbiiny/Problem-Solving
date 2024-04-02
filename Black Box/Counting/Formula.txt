@@ -1,3 +1,8 @@
-summation from 1 to n with step (m) ==> m + 2m + 3m
-ll sum = m * (n / m) * ((n / m) + 1) / 2LL
-/////////////////////////////////////////////////////////////////////////////////////
+summation from l to r with step (sum of numbers divisible by step in range)
+
+int calc(int l, int r, int step) {
+    --l;
+    ll sum = step * (r / step) * ((r / step) + 1) / 2LL;
+    sum -= step * (l / step) * ((l / step) + 1) / 2LL;
+    return sum;
+}

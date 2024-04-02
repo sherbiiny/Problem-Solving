@@ -1,22 +1,23 @@
-vector<ll> dijkstra(int n, int s) {
-    priority_queue<pair<ll, int>> pq;
+vector<ll> dijkstra(int src) {
     vector<ll> dist(n + 1, oo);
-    dist[s] = 0;
-    pq.emplace(0, s);
-
+    dist[src] = 0;
+    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;
+    pq.emplace(0, src);
+ 
     while(!pq.empty()) {
-        ll w = -pq.top().first;
-        int node = pq.top().second;
+        auto [cost, u] = pq.top();
         pq.pop();
-
-        if(w > dist[node]) continue;
-
-        for(auto [d, v] : adj[node]) {
-            if(dist[v] > dist[node] + d) {
-                dist[v] = dist[node] + d;
-                pq.emplace(-dist[v], v);
+ 
+        if(dist[u] < cost)
+            continue;
+ 
+        for(auto [v, w] : adj[u]) {
+            if(dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                pq.emplace(dist[v], v);
             }
         }
     }
+ 
     return dist;
 }
