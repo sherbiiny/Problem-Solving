@@ -1,0 +1,6 @@
+// from 1 to n how many number contains the kth bit
+int count_kth_bit(int n, int k) {
+    ++n;
+    int d = (1LL << (k + 1)), p = (1LL << k);
+    return n / d * p + max(0LL, n % d - p);
+}

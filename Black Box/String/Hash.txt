@@ -1,77 +1,120 @@
-struct Hash {
-    // everything is zero indexed
-    int base, mod, sz;
-    vector<int> pow;
-    vector<int> inv;
-    char startChar = 'a' - 1;
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+#define getrand(l, r) uniform_int_distribution<long long>(l, r)(rng)
 
-    Hash(int b = 69, int m = 1e9+7, int n = 1e6+2) {
-        base = b;
-        mod = m;
-        sz = n;
-        pow.resize(n+1);
-        inv.resize(n+1);
-        preProcess();
+vector<int> Mods = {1099999997, 1099999961, 1099999907, 1099999819, 1099999781, 1099999723, 1099999721, 1099999711,
+                    1099999657, 1099999613, 1099999601, 1099999573, 1099999561, 1099999543, 1099999531, 1099999507,
+                    1099999477, 1099999429, 1099999427, 1099999393, 1099999349, 1099999301, 1099999289, 1099999279,
+                    1099999267, 1099999231, 1099999189, 1099999151, 1099999141, 1099999111, 1099999079, 1099999067,
+                    1099999057, 1099999049, 1099999037, 1099998997, 1099998961, 1099998959, 1099998929, 1099998883,
+                    1099998877, 1099998871, 1099998859, 1099998847, 1099998827, 1099998733, 1099998727, 1099998709,
+                    1099998707, 1099998701, 1099998659, 1099998649, 1099998629, 1099998587, 1099998577, 1099998541,
+                    1099998533, 1099998511, 1099998509, 1099998467, 1099998443, 1099998409, 1099998377, 1099998371,
+                    1099998353, 1099998343, 1099998337, 1099998313, 1099998287, 1099998281, 1099998269, 1099998257,
+                    1099998227, 1099998169, 1099998157, 1099998149, 1099998131, 1099998083, 1099998041, 1099998037,
+                    1099998001, 1099997957, 1099997953, 1099997929, 1099997909, 1099997879, 1099997867, 1099997863,
+                    1099997861, 1099997849, 1099997813, 1099997741, 1099997737, 1099997719, 1099997693, 1099997687,
+                    1099997671, 1099997627, 1099997623, 1099997617, 892846183, 892846133, 892846111, 892846091,
+                    892846051, 892846021, 892845983, 892845979, 892845977, 892845949, 892845931, 892845917, 892845893,
+                    892845871, 892845869, 892845847, 892845817, 892845799, 892845769, 892845743, 892845727, 892845719,
+                    892845677, 892845641, 892845619, 892845617, 892845563, 892845529, 892845497, 892845469, 892845461,
+                    892845449, 892845427, 892845413, 892845391, 892845383, 892845361, 892845329, 892845319, 892845311,
+                    892845277, 892845259, 892845223, 892845221, 892845209, 892845139, 892845137, 892845071, 892845067,
+                    892845061};
+
+static const int c = 2;
+typedef array<int, c> H;
+
+struct Hash {
+    int mod[c], base[c];
+    vector<H> pw, inv;
+    int N, st;
+
+    Hash(int _n, int _s) {
+        N = _n + 1;
+        st = _s - 1;
+        pw.resize(N);
+        inv.resize(N);
+        pre();
     }
 
-    void preProcess() {
-        pow[0] = inv[0] = 1;
-        int inv_pw = inverse(base);
-
-        for(int i = 1; i < sz; ++i) {
-            pow[i] = mult(pow[i-1], base);
-            inv[i] = mult(inv[i-1], inv_pw);
+    void pre() {
+        int r = (Mods.size()) / c - 1;
+        for (int k = 0; k < c; ++k) {
+            mod[k] = Mods[getrand(k * r, (k + 1) * r)];
+            base[k] = getrand(30 + k * 10, 50 + k * 10);
+            pw[0][k] = inv[0][k] = 1;
+            int invB = power(base[k], mod[k] - 2, k);
+            for (int i = 1; i < N; ++i) {
+                pw[i][k] = mul(pw[i - 1][k], base[k], k);
+                inv[i][k] = mul(inv[i - 1][k], invB, k);
+            }
         }
     }
 
-    vector<int> build(string &s) {
+    vector<H> build(string &s) {
         int n = s.size();
-        vector<int> hash(n);
-        hash[0] = mult(s[0]-startChar, pow[0]);
-        for(int i = 1; i < n; ++i)
-            hash[i] = add(hash[i-1], mult((s[i]-startChar), pow[i]));
+        vector<H> hash(n);
+        for (int k = 0; k < c; ++k) {
+            hash[0][k] = mul(s[0] - st, pw[0][k], k);
+            for (int i = 1; i < n; ++i)
+                hash[i][k] = add(hash[i - 1][k], mul((s[i] - st), pw[i][k], k), k);
+        }
         return hash;
     }
 
-    int getFullHash(string &s) {
+    H getFullHash(string &s) {
         int n = s.size();
-        int res = mult(s[0]-startChar, pow[0]);
-        for(int i = 1; i < n; ++i)
-            res = add(res, mult((s[i]-startChar), pow[i]));
+        H res;
+        for (int k = 0; k < c; ++k) {
+            res[k] = mul(s[0] - st, pw[0][k], k);
+            for (int i = 1; i < n; ++i)
+                res[k] = add(res[k], mul((s[i] - st), pw[i][k], k), k);
+        }
         return res;
     }
 
     // hash value of the string s[l, r] both l, r included
-    int getHash(int l, int r, vector<int> &hash) {
-        int res = hash[r];
-
-        if(l) {
-            res = add(res, -hash[l - 1]);
-            res = mult(res, inv[l]);
+    H getHash(int l, int r, vector<H> &hash) {
+        H res;
+        for (int k = 0; k < c; ++k) {
+            res[k] = hash[r][k];
+            if (l) {
+                res[k] = add(res[k], -hash[l - 1][k], k);
+                res[k] = mul(res[k], inv[l][k], k);
+            }
         }
-
         return res;
     }
 
-    int add(int a, int b) {
-        int res = a + b;
-        if(res < 0) res += mod;
-        if(res >= mod) res -= mod;
+    void concat(H &l, H &r, int lSize) {
+        for (int k = 0; k < c; ++k)
+            l[k] = add(l[k], mul(r[k], pw[lSize][k], k), k);
+    }
+
+    ll get(H &h) { // when c = 2
+        ll res = 1;
+        for (int &i: h) res *= i;
         return res;
     }
 
-    int mult(int a, int b) {
-        return 1LL * a * b % mod;
+    int add(int a, int b, int &k) {
+        ll ans = (ll) a + b;
+        if (ans >= mod[k]) ans -= mod[k];
+        if (ans < 0) ans += mod[k];
+        return ans;
     }
 
-    int power(int a, int b) {
-        if (b <= 0) return 1;
-        int ret = power(1LL * a * a % mod, b / 2);
-        if(b % 2) ret = 1LL * ret * a % mod;
-        return ret;
+    int mul(int a, int b, int &k) {
+        return (1ll * a * b) % mod[k];
     }
 
-    int inverse(int b) {
-        return power(b, mod - 2);
+    int power(int a, int b, int &k) {
+        int res = 1;
+        while (b) {
+            if (b & 1) res = mul(res, a, k);
+            a = mul(a, a, k);
+            b >>= 1;
+        }
+        return res;
     }
 };

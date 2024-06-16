@@ -1,0 +1,203 @@
+// Author: _Sherbiny
+
+#include "bits/stdc++.h"
+
+using namespace std;
+typedef long long ll;
+#define endl '\n'
+#define int ll
+
+void file() {
+#ifndef ONLINE_JUDGE
+    freopen("in.in", "r", stdin);
+    freopen("o.in", "w", stdout);
+#endif
+}
+
+#define Hi ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); file();
+
+/////////////////////////////////////////////////////////////////////////////
+struct DSU {
+    int n, cnt;
+    vector<int> parent, size;
+
+    DSU(int sz) {
+        n = sz, cnt = 0;
+        parent.resize(n);
+        size.resize(n);
+    }
+
+    void init() {
+        for (int u = 0; u < n; ++u) makeSet(u);
+    }
+
+    void makeSet(int u) {
+        if (!size[u]) cnt++;
+        parent[u] = u;
+        size[u] = 1;
+    }
+
+    int find(int u) {
+        if (u == parent[u]) return u;
+        return parent[u] = find(parent[u]);
+    }
+
+    bool merge(int u, int v) {
+        int uP = find(u);
+        int vP = find(v);
+
+        if (vP == uP) return 0;
+
+        if (size[vP] > size[uP]) swap(uP, vP);
+        size[uP] += size[vP];
+        parent[vP] = uP;
+        --cnt;
+        return 1;
+    }
+};
+
+struct LOG {
+    vector<int> lg;
+
+    LOG(int n) {
+        lg = vector<int>(n + 2), lg[1] = 0;
+        for (int i = 2; i < n + 2; i++) {
+            lg[i] = lg[i - 1];
+            while ((1 << lg[i]) <= i) {
+                ++lg[i];
+            }
+            --lg[i];
+        }
+    }
+};
+
+LOG LG(2E5 + 1);
+
+struct LCA {
+    int n;
+    vector<int> depth;
+    vector<vector<int>> up;
+    vector<vector<int>> qu;
+
+    LCA(vector<vector<pair<int, int>>> &adj, int root = 1) {
+        n = int(adj.size());
+
+        up = qu = vector<vector<int>>(n, vector<int>(LG.lg[n] + 1));
+        depth = vector<int>(n);
+
+        auto dfs = [&](auto self, int node, int parent) -> void {
+            up[node][0] = parent;
+            for (int i = 1; i < LG.lg[n] + 1; ++i) {
+                up[node][i] = up[up[node][i - 1]][i - 1];
+                qu[node][i] = max(qu[node][i - 1], qu[up[node][i - 1]][i - 1]);
+            }
+            for (auto [ch, w]: adj[node]) {
+                if (ch == parent) {
+                    continue;
+                }
+                depth[ch] = depth[node] + 1, qu[ch][0] = w;
+                self(self, ch, node);
+            }
+        };
+
+        dfs(dfs, root, 0);
+    }
+
+    int get_kth_ancestor(int a, int k) {
+        if (depth[a] < k or k == -1) {
+            return 0;
+        }
+
+        int MX = 0;
+        for (int i = LG.lg[n]; i >= 0; --i) {
+            if (k >= (1 << i)) {
+                MX = max(MX, qu[a][i]);
+                a = up[a][i];
+                k -= (1 << i);
+            }
+        }
+        MX = max(MX, qu[a][0]);
+
+        return MX;
+    }
+
+    int get_lca(int a, int b) {
+        if (depth[a] < depth[b]) {
+            swap(a, b);
+        }
+
+        int k = depth[a] - depth[b];
+        for (int i = LG.lg[n]; i >= 0; --i) {
+            if (k & (1 << i)) {
+                a = up[a][i];
+            }
+        }
+
+        if (a == b) {
+            return a;
+        }
+
+        for (int i = LG.lg[n]; i >= 0; --i) {
+            if (up[a][i] != up[b][i]) {
+                a = up[a][i];
+                b = up[b][i];
+            }
+        }
+
+        return up[a][0];
+    }
+
+    int distance(int a, int b) {
+        int c = get_lca(a, b);
+
+        int x = depth[a] - depth[c];
+        int y = depth[b] - depth[c];
+
+        return x + y;
+    }
+
+    int getMax(int u, int v) {
+        int lca = get_lca(u, v);
+        int mx = get_kth_ancestor(u, depth[u] - depth[lca] - 1);
+        mx = max(mx, get_kth_ancestor(v, depth[v] - depth[lca] - 1));
+        return mx;
+    }
+};
+
+void magic(int tc = 0) {
+    int n, m;
+    cin >> n >> m;
+
+    vector<array<int, 3>> edge(m);
+    for (auto &[w, u, v]: edge)
+        cin >> u >> v >> w;
+
+    DSU dsu(n);
+    sort(edge.begin(), edge.end());
+    vector<vector<pair<int, int>>> adj(n);
+    for (auto &[w, u, v]: edge) {
+        --u, --v;
+        if (dsu.find(u) == dsu.find(v)) continue;
+        dsu.merge(u, v);
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w});
+    }
+
+    LCA lca(adj, 0);
+
+    int q;
+    cin >> q;
+    while (q--) {
+        int u, v, x;
+        cin >> u >> v >> x;
+        --u, --v;
+        cout << (lca.getMax(u, v) <= x ? "YES" : "NO") << endl;
+    }
+}
+
+signed main() {
+    Hi
+    int tc = 1;
+    while (tc--)
+        magic(tc);
+}
