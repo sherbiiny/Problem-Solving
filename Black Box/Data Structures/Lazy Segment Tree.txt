@@ -13,9 +13,9 @@ struct Node {
     }
 };
 
-#define lNode x * 2 + 1
-#define rNode x * 2 + 2
-#define md lx + (rx - lx) / 2
+#define lNode (x * 2 + 1)
+#define rNode (x * 2 + 2)
+#define md (lx + (rx - lx) / 2)
 
 struct Sagara {
     int n;
