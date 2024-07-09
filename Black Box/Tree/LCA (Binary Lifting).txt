@@ -1,0 +1,103 @@
+struct LCA {
+    int n, lg;
+    vector<int> depth;
+    vector<vector<int>> up, qu;
+
+    LCA(vector<vector<pair<int, int>>>& adj, int root = 1) {
+        n = int(adj.size());
+        lg = __lg(n) + 1;
+
+        depth = vector<int>(n);
+        up = qu = vector<vector<int>>(n, vector<int>(lg + 1));
+
+        auto dfs = [&](auto self, int node, int parent) -> void {
+            up[node][0] = parent;
+
+            for (int i = 1; i <= lg; ++i) {
+                up[node][i] = up[up[node][i - 1]][i - 1];
+                qu[node][i] = FUN(qu[node][i - 1], qu[up[node][i - 1]][i - 1]);
+            }
+
+            for (auto [ch, w] : adj[node]) {
+                if (ch == parent) {
+                    continue;
+                }
+
+                depth[ch] = depth[node] + 1, qu[ch][0] = w;
+                self(self, ch, node);
+            }
+        };
+
+        dfs(dfs, root, 0);
+    }
+
+    int get_kth_ancestor(int a, int k) {
+        if (depth[a] < k)
+            return -1;
+        
+        for (int i = lg; i >= 0; --i) {
+            if (k >= (1 << i)) {
+                a = up[a][i];
+                k -= (1 << i);
+            }
+        }
+
+        return a;
+    }
+
+    // function for query on path (max, min, gcd)
+    int get(int a, int dist) {
+        if (depth[a] < dist or dist == -1) {
+            return INIT; // neutral element
+        }
+
+        int ret = INIT;
+        for (int i = lg; i >= 0; --i) {
+            if (dist >= (1 << i)) {
+                ret = FUN(ret, qu[a][i]);
+                a = up[a][i];
+                dist -= (1 << i);
+            }
+        }
+        
+        ret = FUN(ret, qu[a][0]);
+        return ret;
+    }
+
+    int get_#(int a, int b) {
+        int c = get_lca(a, b);
+        return FUN( get(a, distance(a, c) - 1), get(b, distance(b, c) - 1) );
+    }
+
+    int get_lca(int a, int b) {
+        if (depth[a] < depth[b])
+            swap(a, b);
+
+        int k = depth[a] - depth[b];
+        for (int i = lg; i >= 0; --i) {
+            if (k & (1 << i)) {
+                a = up[a][i];
+            }
+        }
+
+        if (a == b) return a;
+
+        for (int i = lg; i >= 0; --i) {
+            if (up[a][i] != up[b][i]) {
+                a = up[a][i];
+                b = up[b][i];
+            }
+        }
+
+        return up[a][0];
+    }
+
+    int distance(int a, int b) {
+        int c = get_lca(a, b);
+
+        int x = depth[a] - depth[c];
+        int y = depth[b] - depth[c];
+
+        return x + y;
+    }
+};

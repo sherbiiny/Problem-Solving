@@ -1,0 +1,73 @@
+template<class T>
+struct SparseTable {
+    // change mxLog
+    static const int mxLog = 21;
+    vector<array<T, mxLog>> table;
+    vector<int> lg;
+    int n;
+
+    SparseTable() {};
+
+    SparseTable(int sz) {
+        n = sz;
+        table.resize(n + 1);
+        lg.resize(n + 1);
+        for (int i = 0; i <= n; ++i) lg[i] = __lg(i);
+    }
+
+    void build(vector<T> &v) {
+        for (int i = 0; i < n; ++i) table[i][0] = v[i];
+        for (int j = 1; j < mxLog; ++j)
+            for (int i = 0; i + (1 << j) - 1 < n; ++i)
+                table[i][j] = merge(table[i][j - 1], table[i + (1 << (j - 1))][j - 1]);
+    }
+
+    T merge(T &l, T &r) {
+        return min(l, r);
+    }
+
+    T query(int l, int r) {
+        int j = lg[r - l + 1];
+        return merge(table[l][j], table[r - (1 << j) + 1][j]);
+    }
+};
+
+struct LCA {
+    int n;
+    vector<pair<int, int>> tour;
+    vector<int> depth, in, par;
+    SparseTable<pair<int, int>> table;
+
+    LCA(int sz) {
+        n = sz;
+        in.resize(n);
+        depth.resize(n);
+        par.resize(n);
+        table = SparseTable<pair<int, int>>(2 * n);
+    }
+
+    void dfs(int u, int p, int d, auto &adj) {
+        in[u] = (int) tour.size();
+        depth[u] = d;
+        par[u] = p;
+        tour.emplace_back(d, u);
+        for (int v: adj[u]) {
+            if (v == p) continue;
+            dfs(v, u, d + 1, adj);
+            tour.emplace_back(d, u);
+        }
+    }
+
+    void build(auto &adj) {
+        dfs(0, 0, 0, adj);
+        table.build(tour);
+    }
+
+    int get(int u, int v) {
+        return table.query(min(in[u], in[v]), max(in[u], in[v])).second;
+    }
+
+    int dist(int u, int v) {
+        return depth[u] + depth[v] - 2 * depth[get(u, v)];
+    }
+};

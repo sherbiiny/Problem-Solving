@@ -1,0 +1,74 @@
+vector<vector<int>> adj;
+vector<int> par, depth, pos, sz, heavy, head, val;
+int cnt = 0;
+
+
+void dfs(int u, int p, int d = 0) {
+    par[u] = p;
+    depth[u] = d;
+    sz[u] = 1;
+
+    int mx = 0;
+    for (int &v: adj[u]) {
+        if (v == p) continue;
+        dfs(v, u, d + 1);
+        if (sz[v] > mx) heavy[u] = v, mx = sz[v];
+        sz[u] += sz[v];
+    }
+}
+
+void HLD(int u, int hd) {
+    if (!u) return;
+    head[u] = hd;
+
+    pos[u] = cnt++;
+    HLD(heavy[u], hd);
+    for (int &v: adj[u])
+        if (v != par[u] && v != heavy[u])
+            HLD(v, v);
+}
+
+int query(int l, int r) {
+    //query on segtree or somthing
+}
+
+int get_path(int u, int v) {
+    int a = head[u], b = head[v];
+
+    int res = 0;
+
+    while (a != b) {
+        if (depth[a] < depth[b])
+            swap(a, b), swap(u, v);
+
+        res = res + query(pos[a], pos[u]);
+        u = par[a], a = head[u];
+    }
+
+    if (pos[u] > pos[v]) swap(u, v);
+    res = res + query(pos[u], pos[v]);
+    return res;
+}
+
+int get_subtree(int u) {
+    return query(pos[u], pos[u] + sz[u]);
+}
+
+void set_point(int u, int value) {
+    val[pos[u]] = value;
+    // update on segtree
+}
+
+// one indexed
+// call init(n), dfs(1, 0), HLD(1, 1); in main
+void init(int n) {
+    ++n;
+    adj.assign(n, {});
+    par.assign(n, {});
+    depth.assign(n, {});
+    pos.assign(n, {});
+    sz.assign(n, {});
+    heavy.assign(n, {});
+    head.assign(n, {});
+    val.assign(n, {});
+}

@@ -1,0 +1,76 @@
+// mx char
+const int MX = 26;
+
+struct Trie {
+    struct Node {
+        array<int, MX> nxt;
+        vector<int> pat;
+        int f = 0;
+
+        Node() { nxt.fill(-1); }
+    };
+
+    vector<Node> node;
+    int start = 'a';
+
+    Trie() {
+        node.resize(1);
+    }
+
+    void add(string &s, int &i) {
+        int v = 0;
+        for (char ch: s) {
+            int c = ch - start;
+            if (node[v].nxt[c] == -1) {
+                node[v].nxt[c] = node.size();
+                node.emplace_back();
+            }
+            v = node[v].nxt[c];
+        }
+
+        node[v].pat.push_back(i);
+    }
+};
+
+
+struct AhoCorasick : public Trie {
+
+    AhoCorasick(vector<string> &pat) {
+        for (int i = 0; i < pat.size(); ++i)
+            add(pat[i], i);
+        build();
+    }
+
+    int move(int &curr, int &c) {
+        int f = node[curr].f;
+        while (node[f].nxt[c] == -1 && f) f = node[f].f;
+        return node[f].nxt[c] == -1 ? 0 : node[f].nxt[c];
+    }
+
+    void build() {
+        queue<int> q;
+
+        for (int i = 0; i < MX; i++) {
+            if (~node[0].nxt[i])
+                q.push(node[0].nxt[i]);
+        }
+
+        while (!q.empty()) {
+            int curr = q.front();
+            q.pop();
+
+            for (int i = 0; i < MX; i++) {
+                int nxt = node[curr].nxt[i];
+                if (nxt == -1) continue;
+
+                int f = move(curr, i);
+                node[nxt].f = f;
+
+                for (auto &j: node[f].pat)
+                    node[nxt].pat.push_back(j);
+
+                q.push(nxt);
+            }
+        }
+    }
+};

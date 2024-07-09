@@ -1,0 +1,80 @@
+struct PST {
+    // root[query_index] returns the root of the version of this query
+    // L[x], R[x] are the id's of x left and right child
+    vector<int> node, L, R, root;
+    int n, curr;
+
+    const int ign = 0; // change this accordigly
+
+    PST(int _n, int q) {
+        const int LOG = 30;
+        n = _n;
+        root.reserve(q + 10);
+        L.resize(n * LOG);
+        R.resize(n * LOG);
+        node.resize(n * LOG);
+        curr = 0;
+    }
+
+    int merge(int lf, int ri) {
+        return lf + ri;
+    }
+
+    // initialize version zero
+    int init(int lx, int rx) {
+        int id = curr++;
+        if (rx - lx < 2) {
+            node[id] = ign;
+            return id;
+        }
+
+        int md = (lx + rx) / 2;
+        L[id] = init(lx, md);
+        R[id] = init(md, rx);
+
+        node[id] = merge(node[L[id]], node[R[id]]);
+        return id;
+    }
+
+    void init() {
+        root.push_back(init(0, n));
+    }
+
+    int set(int ind, int val, int x, int lx, int rx) {
+        if (ind >= rx || ind < lx) return x;
+
+        int id = curr++;
+        if (rx - lx < 2) {
+            node[id] = val;
+            return id;
+        }
+
+        int md = (rx + lx) / 2;
+        L[id] = set(ind, val, L[x], lx, md);
+        R[id] = set(ind, val, R[x], md, rx);
+
+        node[id] = merge(node[L[id]], node[R[id]]);
+        return id;
+    }
+
+    void set(int ind, int val, int version = -1) {
+        if (~version)
+            root.push_back(set(ind, val, root[version], 0, n));
+        else
+            root.push_back(set(ind, val, root.back(), 0, n)); // work on the latest version
+    }
+
+    int query(int l, int r, int x, int lx, int rx) {
+        if (rx <= l || lx >= r) return ign;
+        if (rx <= r && lx >= l) return node[x];
+        int md = (lx + rx) / 2;
+        return merge(query(l, r, L[x], lx, md), query(l, r, R[x], md, rx));
+    }
+
+    int query(int l, int r, int version = -1) {
+        if (~version)
+            return query(l, r, root[version], 0, n);
+        else
+            return query(l, r, root.back(), 0, n);
+    }
+};

@@ -1,0 +1,86 @@
+const int MOD = 998244353;
+
+struct mint {
+    int value;
+    mint(int v = 0) { value = v % MOD; if(value < 0) value += MOD; }
+    mint(int a, int b) : value(0) { *this += a; *this /= b; }
+
+    mint& operator+=(mint const& b) { value += b.value; if(value >= MOD) value -= MOD; return *this; }
+    mint& operator-=(mint const& b) { value -= b.value; if(value < 0) value += MOD; return *this; }
+    mint& operator*=(mint const& b) { value = 1ll * value * b.value % MOD; return *this; }
+
+    friend mint power(mint a, ll e) {
+        mint res = 1; while(e) { if(e & 1) res *= a; a *= a; e >>= 1; }
+        return res;
+    }
+    friend mint inv(mint a) { return power(a, MOD - 2); }
+
+    mint &operator/=(mint const& b) { return *this *= inv(b); }
+    friend mint operator+(mint a, mint const b) { return a += b; }
+    friend mint operator-(mint a, mint const b) { return a -= b; }
+    friend mint operator-(mint const a) { return 0 - a; }
+    friend mint operator*(mint a, mint const b) { return a *= b; }
+    friend mint operator/(mint a, mint const b) { return a /= b; }
+    friend ostream& operator<<(ostream& os, mint const& a) { return os << a.value; }
+    friend bool operator==(mint const &a, mint const& b) { return a.value == b.value; }
+    friend bool operator!=(mint const& a, mint const& b) { return a.value != b.value; }
+};
+
+const mint root = power(mint(3), 119);
+const mint root_1 = inv(root);
+const int root_pw = 1 << 23;
+
+void fft(vector<mint> &a, bool invert) {
+    int n = a.size();
+
+    // reversal bit sort
+    for (int i = 1, j = 0; i < n; i++) {
+        int bit = n >> 1;
+        for (; j & bit; bit >>= 1)
+            j ^= bit;
+        j ^= bit;
+
+        if (i < j)
+            swap(a[i], a[j]);
+    }
+
+    for (int len = 2; len <= n; len <<= 1) {
+        mint wlen = invert ? root_1 : root;
+        for (int i = len; i < root_pw; i <<= 1)
+            wlen *= wlen;
+
+        for (int i = 0; i < n; i += len) {
+            mint w = 1;
+            for (int j = 0; j < len / 2; j++) {
+                mint u = a[i + j], v = a[i + j + len / 2] * w;
+                a[i + j] = u + v;
+                a[i + j + len / 2] = u - v;
+                w *= wlen;
+            }
+        }
+    }
+
+    if (invert) {
+        mint n_1 = inv(mint(n));
+        for (mint &x: a)
+            x *= n_1;
+    }
+}
+
+vector<mint> multiply(vector<int> const &a, vector<int> const &b) {
+    vector<mint> fa(a.begin(), a.end()), fb(b.begin(), b.end());
+    int n = 1;
+    while (n < a.size() + b.size())
+        n <<= 1;
+    fa.resize(n);
+    fb.resize(n);
+
+    fft(fa, false);
+    fft(fb, false);
+    for (int i = 0; i < n; i++)
+        fa[i] *= fb[i];
+    fft(fa, true);
+
+    fa.resize(a.size() + b.size() - 1);
+    return fa;
+}
