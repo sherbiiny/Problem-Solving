@@ -26,42 +26,19 @@ void gen(int tc = 0) {
     freopen(x, "w", stdout);
     x[idx]++;
 
-    int n = random32(1, 100);
-    int m = random32(n - 1, 100);
-    int q = random32(1, 1000);
-
-    cout << n << ' ' << m << endl;
-
-    vector<pair<int, int>> tree = random_tree(n, 1);
-
-    for(auto &[u, v] : tree) {
-        int w = random32(1, 50);
-        cout << u << ' ' << v << ' ' << w << endl;
-    }
-
-    m -= n - 1;
-    while(m--) {
-        int u = random32(1, n);
-        int v = random32(1, n);
-        int w = random32(1, 50);
-        while(v == u)
-            v = random32(1, n);
-        cout << u << ' ' << v << ' ' << w << endl;
-    }
-
-    cout << q << endl;
-    while(q--) {
-        int u = random32(1, n);
-        int v = random32(1, n);
-        int w = random32(1, 50);
-        while(v == u)
-            v = random32(1, n);
-
-        cout << u << ' ' << v << ' ' << w << endl;
+    int t = random32(1, 2e5);
+    cout << t << endl;
+    int rem = 2e5;
+    while(t--) {
+      int n = random32(1, rem - t + 1);
+      rem -= n;
+      cout << n << endl;
+      while(n--) cout << random32(1, 1e9) << ' ';
+      cout << endl;
     }
 }
 
 signed main() {
-    for(int tc = 0; tc < 10; ++tc)
+    for(int tc = 0; tc < 15; ++tc)
         gen(tc);
 }

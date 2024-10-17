@@ -2,11 +2,8 @@ vector<vector<int>> adj;
 vector<int> par, depth, pos, sz, heavy, head, val;
 int cnt = 0;
 
-
 void dfs(int u, int p, int d = 0) {
-    par[u] = p;
-    depth[u] = d;
-    sz[u] = 1;
+    par[u] = p, depth[u] = d, sz[u] = 1;
 
     int mx = 0;
     for (int &v: adj[u]) {
@@ -29,7 +26,7 @@ void HLD(int u, int hd) {
 }
 
 int query(int l, int r) {
-    //query on segtree or somthing
+    // query on segtree or somthing, [l, r] are included
 }
 
 int get_path(int u, int v) {
@@ -38,9 +35,7 @@ int get_path(int u, int v) {
     int res = 0;
 
     while (a != b) {
-        if (depth[a] < depth[b])
-            swap(a, b), swap(u, v);
-
+        if (depth[a] < depth[b]) swap(a, b), swap(u, v);
         res = res + query(pos[a], pos[u]);
         u = par[a], a = head[u];
     }
@@ -51,7 +46,7 @@ int get_path(int u, int v) {
 }
 
 int get_subtree(int u) {
-    return query(pos[u], pos[u] + sz[u]);
+    return query(pos[u], pos[u] + sz[u] - 1);
 }
 
 void set_point(int u, int value) {
@@ -62,7 +57,7 @@ void set_point(int u, int value) {
 // one indexed
 // call init(n), dfs(1, 0), HLD(1, 1); in main
 void init(int n) {
-    ++n;
+    ++n, cnt = 0;
     adj.assign(n, {});
     par.assign(n, {});
     depth.assign(n, {});

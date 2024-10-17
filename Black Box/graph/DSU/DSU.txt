@@ -1,13 +1,11 @@
 struct DSU {
     int n;
-    int numberOfComponents;
-    int maxSizeComponent;
+    int cnt;
     vector<int> parent, size;
 
     DSU(int sz) {
         n = sz;
-        numberOfComponents = 0;
-        maxSizeComponent = 0;
+        cnt = 0;
         parent.resize(n + 1);
         size.resize(n + 1);
     }
@@ -18,28 +16,23 @@ struct DSU {
     }
 
     void makeSet(int u) {
-        if(!size[u]) numberOfComponents++;
+        if(!size[u]) cnt++;
         parent[u] = u;
         size[u] = 1;
-        maxSizeComponent = max(size[u], maxSizeComponent);
     }
 
     int find(int u) {
-        if(u == parent[u])
-            return u;
+        if(u == parent[u]) return u;
         return parent[u] = find(parent[u]);
     }
 
     void merge(int u, int v) {
-        int uP = find(u);
-        int vP = find(v);
-
+        int uP = find(u), vP = find(v);
         if(vP == uP) return;
 
         if(size[vP] > size[uP]) swap(uP, vP);
         size[uP] += size[vP];
         parent[vP] = uP;
-        maxSizeComponent = max(maxSizeComponent, size[uP]);
-        numberOfComponents--;
+        cnt--;
     }
 };

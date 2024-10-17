@@ -1,0 +1,21 @@
+struct Comb {
+    vector<mint> fact, invr;
+    Comb(int n) {
+        fact.assign(n + 5, 1);
+        invr.assign(n + 5, 1);
+        for (int i = 1; i <= n; ++i) fact[i] = fact[i - 1] * i, invr[i] = inv(fact[i]);
+    }
+ 
+    mint nPr(int n, int r) {
+        return n < r ? 0 : fact[n] * invr[n - r];
+    }
+ 
+    mint nCr(int n, int r) {
+        return nPr(n, r) * invr[r];
+    }
+ 
+    mint SAndBars(int n, int k) {
+        if(n < 0) return 0;
+        return nCr(n + k - 1, k - 1);
+    }
+};
