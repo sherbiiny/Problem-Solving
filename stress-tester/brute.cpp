@@ -1,165 +1,113 @@
-#define _USE_MATH_DEFINES
+// Author: _Sherbiny
 
-/*
-#pragma GCC optimize("Ofast,unroll-loops,no-stack-protector,fast-math")
-#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-#pragma GCC target("avx,avx2,fma")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,avx2,fma")
-*/
-
-#include <cmath>
-#include <bits/stdc++.h>
-#include<ext/pb_ds/assoc_container.hpp>
-#include<ext/pb_ds/tree_policy.hpp>
-
+#include "bits/stdc++.h"
 using namespace std;
-using namespace __gnu_pbds;
 
-mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-
-void fileIO(void) {
-
-#ifndef ONLINE_JUDGE
-
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-
+#ifdef DBG
+#include "./debug.h"
+#else
+#define dbg(...)
 #endif
 
-}
-
-void fastIO(void) {
-
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
-
-}
-
 typedef long long ll;
-#define int ll
-typedef tree<int, null_type, greater_equal<int>, rb_tree_tag, tree_order_statistics_node_update> Ordered_Set; // find_by_order : element at index i
-// order_of_key  : how many elements < A
-// greater<int>
-// less_equal<int>, greater_equal<int> : multiset
-
-
-typedef unsigned long long ull;
-typedef long double ld;
-
-typedef pair<int, int> pi;
-typedef pair<int, pi> p3i;
-
-typedef pair<ll, ll> pll;
-typedef pair<ll, pll> p3ll;
-
-typedef pair<ll, ld> plld;
-typedef pair<double, pi> pd2i;
-
-typedef vector<int> vi;
-typedef vector<pi> v2i;
-typedef vector<p3i> v3i;
-
-typedef vector<ll> vll;
-typedef vector<pll> v2ll;
-typedef vector<p3ll> v3ll;
-
-typedef vector<string> vs;
-typedef vector<bool> vb;
-
-typedef vector<vi> vvi;
-typedef vector<vll> vvl;
-
-typedef priority_queue<int> pq_max;
-typedef priority_queue<int, vi, greater<int>> pq_min;
-
-#define loop(n)          for(int i = 0; i < (n); i++)
-#define lp(x, s, e)      for(ll x = (s); x < (e); x++)
-#define lpe(x, s, e)     for(ll x = (s); x <= (e); x++)
-
-#define loop_r(n)          for(ll i = (n) - 1; i >= 0; i--)
-#define lp_r(x, s, e)      for(ll x = (e) - 1; x >= (s); x--)
-#define lpe_r(x, s, e)     for(ll x = (e); x >= (s); x--)
-
-#define MP make_pair
-#define PB push_back
-#define EmB emplace_back
-#define Em emplace
-#define len(s)   (ll)s.length()
-#define sz(v)    (ll)v.size()
-#define all(a)   a.begin(),a.end()
-#define all_r(a)   a.rbegin(),a.rend()
-#define clr(x, val)    memset((x), (val), sizeof(x))
-#define maxEle *max_element
-#define minEle *min_element
-
-#define tests ll t; cin >> t; ll i_t = 0; while(i_t++ < t)
-#define SetPre(n, x)  cout << fixed << setprecision(n) << x
-
 #define endl '\n'
-#define kill return 0
+#define int ll
+//==================//
 
+struct Node {
+    int ign = 0, val;
 
-#define ceil_i(a, b) (((ll)(a)+(ll)(b-1))/(ll)(b))
-#define floor_i(a, b) (a/b)
-#define round_i(a, b) ((a+(b/2))/b)
+    Node() : val(ign) {};
 
-int dx_all[8] = {1, 0, -1, 0, 1, 1, -1, -1},
-        dy_all[8] = {0, 1, 0, -1, -1, 1, -1, 1};
+    Node(int x) : val(x) {};
 
-int dx[4] = {1, 0, -1, 0},
-        dy[4] = {0, 1, 0, -1};
-
-
-void solve() {
-    int n, k;
-    cin >> n >> k;
-    vector<int> arr(n);
-    for (int i = 0; i < n; ++i) {
-        cin >> arr[i];
+    void set(int x) {
+        val = x;
     }
-    sort(all(arr));
+};
+
+#define lNode (x * 2 + 1)
+#define rNode (x * 2 + 2)
+#define md (lx + (rx - lx) / 2)
+
+struct Sagara {
+    int n;
+    vector<Node> node;
+
+    Sagara(int sz) {
+        n = 1;
+        while (n < sz) n *= 2;
+        node.assign(n * 2, Node());
+    }
+
+    Node merge(Node &l, Node &r) {
+        Node res = Node();
+        res.val = max(l.val, r.val);
+        return res;
+    }
 
 
-    int sum = 0;
-    int idx = 0;
-    int tot = 0;
-    for (int i = 0; i < arr.size(); ++i) {
-        sum += arr[i];
-        if (sum == k) {
-            sum -= arr[idx];
-            arr.push_back(arr[idx++]);
-            tot++;
-            if (tot > n)
-                return void(cout << -1 << endl);
+    void set(int &ind, ll &val, int x, int lx, int rx) {
+        if (rx - lx == 1) return node[x].set(val);
+
+        if (ind < md) set(ind, val, lNode, lx, md);
+        else set(ind, val, rNode, md, rx);
+
+        node[x] = merge(node[lNode], node[rNode]);
+    }
+
+    void set(int ind, ll val) { set(ind, val, 0, 0, n); }
+
+    Node query(int &l, int &r, int x, int lx, int rx) {
+        if (lx >= r || rx <= l) return Node(-2e18);
+        if (rx <= r && lx >= l) return node[x];
+
+        Node L = query(l, r, lNode, lx, md);
+        Node R = query(l, r, rNode, md, rx);
+
+        return merge(L, R);
+    }
+
+    Node query(int l, int r) {
+        return query(l, r, 0, 0, n);
+    }
+};
+
+
+void magic() {
+    int n, m, d; cin >> n >> m >> d;
+    vector<array<int, 3>> v(m);
+    for(auto &[t, a, b]: v)
+        cin >> a >> b >> t;
+
+    sort(v.begin(), v.end());
+
+    Sagara dp(n + 2);
+
+    for(int x = 1; x <= n; ++x) {
+        int gain = v[m - 1][2] - abs(x - v[m - 1][1]);
+        dp.set(x, gain);
+    }
+
+    for(int i = m - 2; i >= 0; --i) {
+        Sagara newDp(n + 2);
+        for(int x = 1; x <= n; ++x) {
+            int timeDiff = v[i + 1][0] - v[i][0];
+            int l = max(1ll, x - d * timeDiff);
+            int r = min(n, x + d * timeDiff);
+            int gain = v[i][2] - abs(x - v[i][1]);
+            int me = dp.query(l, r + 1).val + gain;
+            newDp.set(x, me);
         }
+
+        swap(dp, newDp);
     }
 
-    cout << 1 << endl;
+    cout << dp.query(1, n + 1).val << endl;
 }
 
 signed main() {
-
-    fastIO();
-    cout << setprecision(10) << fixed;
+    ios_base::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int t = 1;
-    cin >> t;
-
-    for (int i = 1; i <= t; ++i) {
-        solve();
-
-        /*cout << solve() << endl;*/
-
-        /*if(solve())
-            cout << "YES\n";
-        else
-            cout << "NO\n";*/
-
-        /*cout << "Case #" << i << ": ";*/
-
-
-        /*cout << "Case #" << i << ": " << (solve() ? "YES" : "NO") << endl;*/
-    }
-
-    kill;
+    while (t--) magic();
 }

@@ -1,45 +1,57 @@
-const ll is_query = -(1LL<<62);
-struct line {
-    ll m, b;
-    mutable function<const line*()> succ;
-    bool operator<(const line& rhs) const {
-        if (rhs.b != is_query) return m < rhs.m;
-        const line* s = succ();
-        if (!s) return 0;
-        ll x = rhs.m;
+struct Line {
+    int m, b;
+    mutable function<const Line *()> succ;
+
+    bool operator<(const Line& other) const {
+        return m < other.m;
+    }
+
+    bool operator<(const int& x) const {
+        const Line *s = succ();
+        if (not s) return false;
         return b - s->b < (s->m - m) * x;
     }
 };
 
-struct dynamic_hull : public multiset<line> { // will maintain upper hull for maximum
-    const ll inf = LLONG_MAX;
+struct HullDynamic: multiset<Line, less<>> {
     bool bad(iterator y) {
         auto z = next(y);
         if (y == begin()) {
-            if (z == end()) return 0;
-            return y->m == z->m && y->b <= z->b;
+            if (z == end()) return false;
+            return y->m == z->m and y->b <= z->b;
         }
-        auto x = prev(y);
-        if (z == end()) return y->m == x->m && y->b <= x->b;
 
-		/* compare two lines by slope, make sure denominator is not 0 */
-        ll v1 = (x->b - y->b);
-        if (y->m == x->m) v1 = x->b > y->b ? inf : -inf;
-        else v1 /= (y->m - x->m);
-        ll v2 = (y->b - z->b);
-        if (z->m == y->m) v2 = y->b > z->b ? inf : -inf;
-        else v2 /= (z->m - y->m);
-        return v1 >= v2;
+        auto x = prev(y);
+        if (z == end())
+            return y->m == x->m and y->b <= x->b;
+
+        return (long double) (x->b - y->b) * (z->m - y->m) >= (long double) (y->b - z->b) * (y->m - x->m);
     }
-    void insert_line(ll m, ll b) {
+
+    void insert_line(int m, int b) {
+        // for minimum
+        // m *= -1, b *= -1;
         auto y = insert({ m, b });
-        y->succ = [=] { return next(y) == end() ? 0 : &*next(y); };
-        if (bad(y)) { erase(y); return; }
-        while (next(y) != end() && bad(next(y))) erase(next(y));
-        while (y != begin() && bad(prev(y))) erase(prev(y));
+        y->succ = [=] {
+            return next(y) == end() ? 0 : &*next(y);
+        };
+
+        if (bad(y)) {
+            erase(y);
+            return;
+        }
+
+        while (next(y) != end() and bad(next(y)))
+            erase(next(y));
+
+        while (y != begin() and bad(prev(y)))
+            erase(prev(y));
     }
-    ll eval(ll x) {
-        auto l = *lower_bound((line) { x, is_query });
+
+    int eval(int x) {
+        auto l = *lower_bound(x);
+        // for minimum
+        // return -(l.m * x + l.b);
         return l.m * x + l.b;
     }
 };
