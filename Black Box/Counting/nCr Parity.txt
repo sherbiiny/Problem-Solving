@@ -1,0 +1,4 @@
+int nCr(int n, int r){
+    if(n < r) return 0;
+    return (n & r) == r;
+}

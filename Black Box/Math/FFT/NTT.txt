@@ -1,0 +1,72 @@
+const int mod = 998244353, root = 31;
+const int root_1 = 128805723, root_pw = 1 << 23;
+
+int power(int a, int b) {
+    int res = 1;
+    while(b) {
+        if(b&1) res = 1ll * res * a % mod;
+        a = 1ll * a * a % mod, b >>= 1;
+    }
+    return res;
+}
+
+// make the size of (a) power of 2
+void ntt(vector<int> &a, bool invert) {
+    int n = a.size();
+
+    for (int i = 1, j = 0; i < n; i++) {
+        int bit = n >> 1;
+        for (; j & bit; bit >>= 1) j ^= bit;
+        j ^= bit;
+        if (i < j) swap(a[i], a[j]);
+    }
+
+    for (int len = 2; len <= n; len <<= 1) {
+        int wlen = invert ? root_1 : root;
+        for (int i = len; i < root_pw; i <<= 1)
+            wlen = 1ll * wlen * wlen % mod;
+
+        for (int i = 0; i < n; i += len) {
+            int w = 1;
+            for (int j = 0; j < len / 2; j++) {
+                int u = a[i + j], v = 1ll * a[i + j + len / 2] * w % mod;
+                a[i + j] = u + v;
+                a[i + j + len / 2] = u - v;
+                if (a[i + j] >= mod) a[i + j] -= mod;
+                if (a[i + j + len / 2] < 0) a[i + j + len / 2] += mod;
+                w = 1ll * w * wlen % mod;
+            }
+        }
+    }
+
+    if (invert) {
+        int n_1 = power(n, mod - 2);
+        for (int &x: a) x = 1ll * x * n_1 % mod;
+    }
+}
+
+
+vector<int> multiply(auto &a, auto &b) {
+    vector<int> fa = a, fb = b;
+    int n = 1;
+    while (n < a.size() + b.size()) n <<= 1;
+    fa.resize(n), fb.resize(n);
+
+    ntt(fa, false);
+    ntt(fb, false);
+    for (int i = 0; i < n; i++)
+        fa[i] = 1ll * fa[i] * fb[i] % mod;
+    ntt(fa, true);
+
+    fa.resize(a.size() + b.size());
+    return fa;
+}
+
+vector<int> power(vector<int> &a, int b) {
+    vector<int> res{1};
+    while (b) {
+        if (b & 1) res = multiply(res, a);
+        a = multiply(a, a), b >>= 1;
+    }
+    return res;
+}

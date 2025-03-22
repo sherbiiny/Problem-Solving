@@ -6,7 +6,7 @@ void dfs(int u, int p, int d = 0) {
     par[u] = p, depth[u] = d, sz[u] = 1;
 
     int mx = 0;
-    for (int &v: adj[u]) {
+    for (int &v : adj[u]) {
         if (v == p) continue;
         dfs(v, u, d + 1);
         if (sz[v] > mx) heavy[u] = v, mx = sz[v];
@@ -20,20 +20,21 @@ void HLD(int u, int hd) {
 
     pos[u] = cnt++;
     HLD(heavy[u], hd);
-    for (int &v: adj[u])
+    for (int &v : adj[u])
         if (v != par[u] && v != heavy[u])
             HLD(v, v);
 }
 
 int query(int l, int r) {
     // query on segtree or somthing, [l, r] are included
+    return;
 }
 
-int get_path(int u, int v) {
+// Don't forget to change the operation accordingly (res + ...)
+int getPath(int u, int v) {
     int a = head[u], b = head[v];
 
     int res = 0;
-
     while (a != b) {
         if (depth[a] < depth[b]) swap(a, b), swap(u, v);
         res = res + query(pos[a], pos[u]);
@@ -45,13 +46,13 @@ int get_path(int u, int v) {
     return res;
 }
 
-int get_subtree(int u) {
+int getSubtree(int u) {
     return query(pos[u], pos[u] + sz[u] - 1);
 }
 
-void set_point(int u, int value) {
+void updateNode(int u, int value) {
+    // update pos[u] in the structure
     val[pos[u]] = value;
-    // update on segtree
 }
 
 // one indexed
