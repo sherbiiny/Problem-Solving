@@ -1,0 +1,78 @@
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+#define getrand(l, r) uniform_int_distribution<long long>(l, r)(rng)
+
+struct TreapNode {
+    int sz = 1, val, rev = 0;
+    ll p = getrand(1, 2e18), sum;
+    TreapNode *l = NULL, *r = NULL;
+    TreapNode(int a): val(a), sum(a) {}
+};
+
+using Treap = TreapNode*;
+
+int size(Treap t) { return t? t->sz : 0; }
+ll sum(Treap t) { return t? t->sum : 0; }
+
+Treap recalc(Treap t) {
+    t->sz = size(t->l) + 1 + size(t->r);
+    t->sum = sum(t->l) + t->val + sum(t->r);
+    return t;
+}
+
+void prop(Treap t) {
+    if(!t->rev) return;
+    swap(t->l, t->r);
+    if(t->l) t->l->rev ^= 1;
+    if(t->r) t->r->rev ^= 1;
+    t->rev = 0;
+}
+
+Treap merge(Treap l, Treap r) {
+    if(!l || !r) return r ? r : l;
+    prop(l), prop(r);
+    
+    if(l->p < r->p) {
+        l->r = merge(l->r, r);
+        return recalc(l);
+    }
+    
+    r->l = merge(l, r->l);
+    return recalc(r);
+}
+
+array<Treap, 2> split(Treap t, int sz) {
+    if(!t) return {NULL, NULL};
+    prop(t);
+    
+    if(size(t->l) >= sz) {
+        auto [left, right] = split(t->l, sz);
+        t->l = right;
+        return {left, recalc(t)};
+    }
+
+    auto [left, right] = split(t->r, sz - size(t->l) - 1);
+    t->r = left;
+    return {recalc(t), right};
+}
+
+Treap apply(Treap t, int l, int r) {
+    auto [a, b] = split(t, r);
+    auto [c, d] = split(a, l - 1);
+    d->rev = 1;
+    return merge(merge(c, d), b);
+}
+
+Treap answer(Treap t, int l, int r) {
+    auto [a, b] = split(t, r);
+    auto [c, d] = split(a, l - 1);
+    cout << d->sum << endl;
+    return merge(merge(c, d), b);
+}
+
+void print(Treap t) {
+    if(!t) return;
+    prop(t);
+    print(t->l);
+    cout << t->val;
+    print(t->r);
+}

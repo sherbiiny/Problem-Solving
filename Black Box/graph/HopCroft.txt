@@ -1,0 +1,37 @@
+struct HK {
+    int n, m;
+    vector<vector<int>> g;
+    vector<int> l, r, d, p; int ans;
+    HK(int n, int m) : n(n), m(m), g(n), l(n, -1), r(m, -1), ans(0) {}
+
+    void add_edge(int u, int v) {
+        g[u].push_back(v);
+    }
+
+    int match(){
+        while (true) {
+            queue<int> q; d.assign(n, -1);
+            for (int i = 0; i < n; i++)
+                if (l[i] == -1) q.push(i), d[i] = 0;
+            while (!q.empty()) {
+                int x = q.front(); q.pop();
+                for (int y : g[x])
+                    if (r[y] != -1 && d[r[y]] == -1)
+                        d[r[y]] = d[x] + 1, q.push(r[y]);
+            }
+            bool match = false;
+            for (int i = 0; i < n; i++)
+                if (l[i] == -1 && dfs(i)) ++ans, match = true;
+            if (!match) break;
+        }
+        return ans;
+    }
+
+
+    bool dfs(int x) {
+        for (int y : g[x])
+            if (r[y] == -1 || (d[r[y]] == d[x] + 1 && dfs(r[y])))
+                return l[x] = y, r[y] = x, d[x] = -1, true;
+        return d[x] = -1, false;
+    }
+};
