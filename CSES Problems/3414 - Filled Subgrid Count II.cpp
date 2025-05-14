@@ -1,13 +1,8 @@
 // Author: _Sherbiny
+// Problem Link: https://cses.fi/problemset/task/3414
 
 #include "bits/stdc++.h"
 using namespace std;
-
-#ifdef DBG
-#include "./debug.h"
-#else
-#define dbg(...)
-#endif
 
 typedef long long ll;
 #define endl '\n'
