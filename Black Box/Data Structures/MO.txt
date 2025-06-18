@@ -1,7 +1,4 @@
-struct Query {
-    int l, r, ind;
-};
-
+struct Query { int l, r, ind; };
 struct MO {
     int n, sq, l, r;
     ll curr;

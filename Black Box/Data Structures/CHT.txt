@@ -1,0 +1,57 @@
+struct Line {
+    int m, b;
+    mutable function<const Line *()> succ;
+
+    bool operator<(const Line& other) const {
+        return m < other.m;
+    }
+
+    bool operator<(const int& x) const {
+        const Line *s = succ();
+        if (not s) return false;
+        return b - s->b < (s->m - m) * x;
+    }
+};
+
+struct HullDynamic: multiset<Line, less<>> {
+    bool bad(iterator y) {
+        auto z = next(y);
+        if (y == begin()) {
+            if (z == end()) return false;
+            return y->m == z->m and y->b <= z->b;
+        }
+
+        auto x = prev(y);
+        if (z == end())
+            return y->m == x->m and y->b <= x->b;
+
+        return (long double) (x->b - y->b) * (z->m - y->m) >= (long double) (y->b - z->b) * (y->m - x->m);
+    }
+
+    void insert_line(int m, int b) {
+        // for minimum
+        // m *= -1, b *= -1;
+        auto y = insert({ m, b });
+        y->succ = [=] {
+            return next(y) == end() ? 0 : &*next(y);
+        };
+
+        if (bad(y)) {
+            erase(y);
+            return;
+        }
+
+        while (next(y) != end() and bad(next(y)))
+            erase(next(y));
+
+        while (y != begin() and bad(prev(y)))
+            erase(prev(y));
+    }
+
+    int eval(int x) {
+        auto l = *lower_bound(x);
+        // for minimum
+        // return -(l.m * x + l.b);
+        return l.m * x + l.b;
+    }
+};

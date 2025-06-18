@@ -1,33 +1,20 @@
 // Patterns must be distinct
 struct Aho {
-
-    /*
-     * N: Number of nodes
-     * P: Number of patterns
-     * A: Alphabet size
-     * st: First character in alphabet
-     * nxt: Normal trie links
-     * link: Longest proper prefix equals to this suffix (failure)
-     * out_link: First suffix that has a match in it
-     * out: the indices of the matched patterns in this node
-    */
-
     int N, P, A, st;
-    vector<vector<int>> nxt, out;
-    vector<int> link, out_link;
+    vector<vector<int>> nxt;
+    vector<int> link, out_link, out;
 
     Aho(int A, int st): N(0), P(0), A(A), st(st) {node();}
     int node() {
         nxt.emplace_back(A, 0);
         link.emplace_back(0);
         out_link.emplace_back(0);
-        out.emplace_back(0);
+        out.emplace_back(-1);
         return N++;
     }
 
     int get (char c) {return c - st;}
 
-    // insert a pattern (returns the id)
     int insert(const string &p) {
         int u = 0;
         for (auto &c: p) {
@@ -35,11 +22,10 @@ struct Aho {
             u = nxt[u][get(c)];
         }
 
-        out[u].push_back(P);
+        out[u] = P;
         return P++;
     }
 
-    // Call build() after adding all patterns
     void build() {
         queue <int> q;
         for (q.push(0); !q.empty();) {
@@ -49,14 +35,13 @@ struct Aho {
                 if (!v) nxt[u][c] = nxt[link[u]][c];
                 else {
                     link[v] = u ? nxt[link[u]][c] : 0;
-                    out_link[v] = out[link[v]].empty() ? out_link[link[v]] : link[v];
+                    out_link[v] = ~out[link[v]] ? link[v] : out_link[link[v]];
                     q.push(v);
                 }
             }
         }
     }
 
-    // standing at node u, trying to add char c
     int advance (int u, char c) {
         while (u && !nxt[u][get(c)]) u = link[u];
         u = nxt[u][get(c)];

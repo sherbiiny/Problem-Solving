@@ -1,5 +1,4 @@
 // a[l] + 2*a[l+1] + 3*a[l+2] + ...
-
 pair<vector<int>, vector<int>> build(vector<int> &v) {
     int n = v.size();
     vector<int> suff(n + 2), s(n + 2);

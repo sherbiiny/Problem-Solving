@@ -1,80 +1,60 @@
+struct Node {
+    Node *l, *r;
+    int val = 0;
+
+    Node(int val): l(NULL), r(NULL), val(val) {}
+    Node(): l(NULL), r(NULL) {}
+    Node(Node *l, Node *r): l(l), r(r) {
+        if (l != NULL) val += l->val;
+        if (r != NULL) val += r->val;
+    }
+
+    void addChild() {
+        l = new Node();
+        r = new Node();
+    }
+};
+
 struct PST {
-    // root[query_index] returns the root of the version of this query
-    // L[x], R[x] are the id's of x left and right child
-    vector<int> node, L, R, root;
-    int n, curr;
+    int n;
+    PST(int n): n(n + 1) {}
 
-    const int ign = 0; // change this accordigly
-
-    PST(int _n, int q) {
-        const int LOG = 30;
-        n = _n;
-        root.reserve(q + 10);
-        L.resize(n * LOG);
-        R.resize(n * LOG);
-        node.resize(n * LOG);
-        curr = 0;
+    Node merge(Node x, Node y) {
+        Node ret;
+        ret.val = x.val + y.val;
+        return ret;
     }
 
-    int merge(int lf, int ri) {
-        return lf + ri;
+    Node *set(Node *v, int i, int val, int lx, int rx) {
+        if (lx == rx) return new Node(val);
+        int mid = (lx + rx) / 2;
+        if(!v->l) v->addChild();
+        if (i <= mid) return new Node(set(v->l, i, val, lx, mid), v->r);
+        return new Node(v->l, set(v->r, i, val, mid + 1, rx));
     }
 
-    // initialize version zero
-    int init(int lx, int rx) {
-        int id = curr++;
-        if (rx - lx < 2) {
-            node[id] = ign;
-            return id;
-        }
+    Node *set(Node *v, int i, int val) { return set(v, i, val, 0, n - 1); }
 
-        int md = (lx + rx) / 2;
-        L[id] = init(lx, md);
-        R[id] = init(md, rx);
-
-        node[id] = merge(node[L[id]], node[R[id]]);
-        return id;
+    // [l, r] r is included
+    Node query(Node *v, int l, int r, int lx, int rx) {
+        if (l > rx || r < lx) return {};
+        if (l <= lx && r >= rx) return *v;
+        if(!v->l) v->addChild();
+        int mid = (lx + rx) / 2;
+        return merge(query(v->l, l, r, lx, mid), query(v->r, l, r, mid + 1, rx));
     }
 
-    void init() {
-        root.push_back(init(0, n));
+    Node query(Node *v, int l, int r) { return query(v, l, r, 0, n - 1); }
+
+    int getKth(Node *a, Node *b, int k, int lx, int rx) {
+        if (lx == rx) return lx;
+        if(!a->l) a->addChild();
+        if(!b->l) b->addChild();
+        int rem = b->l->val - a->l->val;
+        int mid = (lx + rx) / 2;
+        if (rem >= k) return getKth(a->l, b->l, k, lx, mid);
+        return getKth(a->r, b->r, k - rem, mid + 1, rx);
     }
 
-    int set(int ind, int val, int x, int lx, int rx) {
-        if (ind >= rx || ind < lx) return x;
-
-        int id = curr++;
-        if (rx - lx < 2) {
-            node[id] = val;
-            return id;
-        }
-
-        int md = (rx + lx) / 2;
-        L[id] = set(ind, val, L[x], lx, md);
-        R[id] = set(ind, val, R[x], md, rx);
-
-        node[id] = merge(node[L[id]], node[R[id]]);
-        return id;
-    }
-
-    void set(int ind, int val, int version = -1) {
-        if (~version)
-            root.push_back(set(ind, val, root[version], 0, n));
-        else
-            root.push_back(set(ind, val, root.back(), 0, n)); // work on the latest version
-    }
-
-    int query(int l, int r, int x, int lx, int rx) {
-        if (rx <= l || lx >= r) return ign;
-        if (rx <= r && lx >= l) return node[x];
-        int md = (lx + rx) / 2;
-        return merge(query(l, r, L[x], lx, md), query(l, r, R[x], md, rx));
-    }
-
-    int query(int l, int r, int version = -1) {
-        if (~version)
-            return query(l, r, root[version], 0, n);
-        else
-            return query(l, r, root.back(), 0, n);
-    }
+    int getKth(Node *a, Node *b, int k) { return getKth(a, b, k, 0, n - 1); }
 };
