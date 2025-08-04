@@ -12,13 +12,23 @@ using Treap = TreapNode*;
 
 int size(Treap t) { return t? t->sz : 0; }
 
+void prop(Treap t) {
+    if(!t || !t->rev) return;
+    swap(t->l, t->r);
+    if(t->l) t->l->rev ^= 1;
+    if(t->r) t->r->rev ^= 1;
+    t->rev = 0;
+}
+
 Treap recalc(Treap t) {
+    prop(t->l), prop(t->r);
     t->sz = size(t->l) + 1 + size(t->r);
     return t;
 }
 
 Treap merge(Treap l, Treap r) {
     if(!l || !r) return r ? r : l;
+    prop(l), prop(r);
 
     if(l->p < r->p) {
         l->r = merge(l->r, r);
@@ -31,7 +41,8 @@ Treap merge(Treap l, Treap r) {
 
 array<Treap, 2> split(Treap t, int pivot) {
     if(!t) return {NULL, NULL};
-
+    prop(t);
+    
     if(t->key > pivot) {
         auto [left, right] = split(t->l, pivot);
         t->l = right;
@@ -59,4 +70,12 @@ Treap answer(Treap t, int l, int r) {
     auto [c, d] = split(a, l - 1);
     cout << size(d) << endl;
     return merge(merge(c, d), b);
+}
+
+void print(Treap t) {
+    if(!t) return;
+    prop(t);
+    print(t->l);
+    // cout << t->val;
+    print(t->r);
 }

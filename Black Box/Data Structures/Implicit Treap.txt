@@ -13,29 +13,30 @@ using Treap = TreapNode*;
 int size(Treap t) { return t? t->sz : 0; }
 ll sum(Treap t) { return t? t->sum : 0; }
 
-Treap recalc(Treap t) {
-    t->sz = size(t->l) + 1 + size(t->r);
-    t->sum = sum(t->l) + t->val + sum(t->r);
-    return t;
-}
-
 void prop(Treap t) {
-    if(!t->rev) return;
+    if(!t || !t->rev) return;
     swap(t->l, t->r);
     if(t->l) t->l->rev ^= 1;
     if(t->r) t->r->rev ^= 1;
     t->rev = 0;
 }
 
+Treap recalc(Treap t) {
+    prop(t->l), prop(t->r);
+    t->sz = size(t->l) + 1 + size(t->r);
+    t->sum = sum(t->l) + t->val + sum(t->r);
+    return t;
+}
+
 Treap merge(Treap l, Treap r) {
     if(!l || !r) return r ? r : l;
     prop(l), prop(r);
-    
+
     if(l->p < r->p) {
         l->r = merge(l->r, r);
         return recalc(l);
     }
-    
+
     r->l = merge(l, r->l);
     return recalc(r);
 }
@@ -43,7 +44,7 @@ Treap merge(Treap l, Treap r) {
 array<Treap, 2> split(Treap t, int sz) {
     if(!t) return {NULL, NULL};
     prop(t);
-    
+
     if(size(t->l) >= sz) {
         auto [left, right] = split(t->l, sz);
         t->l = right;
@@ -58,7 +59,7 @@ array<Treap, 2> split(Treap t, int sz) {
 Treap apply(Treap t, int l, int r) {
     auto [a, b] = split(t, r);
     auto [c, d] = split(a, l - 1);
-    d->rev = 1;
+    d->rev ^= 1;
     return merge(merge(c, d), b);
 }
 

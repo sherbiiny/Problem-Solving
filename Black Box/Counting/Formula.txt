@@ -1,8 +1,7 @@
-summation from l to r with step (sum of numbers divisible by step in range)
-
-ll calc(int l, int r, int step) {
+// sum of numbers divisible by d in range
+int calc(int l, int r, int d) {
     --l;
-    ll sum = 1ll * step * (r / step) * ((r / step) + 1) / 2LL;
-    sum -= 1ll * step * (l / step) * ((l / step) + 1) / 2LL;
+    ll sum = 1ll * d * (r / d) * (r / d + 1) / 2LL;
+    sum -= 1ll * d * (l / d) * (l / d + 1) / 2LL;
     return sum;
 }
