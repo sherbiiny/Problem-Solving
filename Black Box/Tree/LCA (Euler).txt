@@ -1,60 +1,35 @@
-template<class T>
-struct SparseTable {
+struct LCA {
     static const int B = 21;
-    vector<array<T, B>> t;
-    vector<int> lg;
+    vector<array<int, 2>> tour;
+    vector<array<array<int, 2>, B>> T;
+    vector<int> d, in, lg;
 
-    SparseTable(int n, vector<T> &v): t(n + 1), lg(n + 1) {
-        lg[n] = __lg(n);
-        for (int i = 0; i < n; ++i) lg[i] = __lg(i), t[i][0] = v[i];
+    LCA(int n, auto &adj): d(n + 1), in(n + 1), lg(n*2 + 1) {
+        tour.reserve(n *= 2);
+        T.resize(n);
+        dfs(0, 0, adj);
+        for(int i = 0; i < n; ++i) lg[i]=__lg(i), T[i][0]=tour[i];
         for (int j = 1; j < B; ++j)
             for (int i = 0; i + (1 << j) - 1 < n; ++i)
-                t[i][j] = merge(t[i][j - 1], t[i + (1 << j - 1)][j - 1]);
+                T[i][j] = min(T[i][j - 1], T[i+(1 << j - 1)][j - 1]);
     }
 
-    T merge(T &l, T &r) { return min(l, r); }
-    T query(int l, int r) {
-        int j = lg[r - l + 1];
-        return merge(t[l][j], t[r - (1 << j) + 1][j]);
-    }
-};
-
-struct LCA {
-    int n;
-    vector<pair<int, int>> tour;
-    vector<int> depth, in, par;
-    SparseTable<pair<int, int>> table;
-
-    LCA(int sz) {
-        n = sz;
-        in.resize(n);
-        depth.resize(n);
-        par.resize(n);
-        table = SparseTable<pair<int, int>>(2 * n);
-    }
-
-    void dfs(int u, int p, int d, auto &adj) {
-        in[u] = (int) tour.size();
-        depth[u] = d;
-        par[u] = p;
-        tour.emplace_back(d, u);
+    void dfs(int u, int p, auto &adj) {
+        in[u] = size(tour);
+        tour.push_back({d[u], u});
         for (int v: adj[u]) {
             if (v == p) continue;
-            dfs(v, u, d + 1, adj);
-            tour.emplace_back(d, u);
+            d[v] = d[u] + 1;
+            dfs(v, u, adj);
+            tour.push_back({d[u], u});
         }
     }
 
-    void build(auto &adj) {
-        dfs(0, 0, 0, adj);
-        table.build(tour);
-    }
-
     int get(int u, int v) {
-        return table.query(min(in[u], in[v]), max(in[u], in[v])).second;
+        int l = min(in[u], in[v]), r = max(in[u], in[v]);
+        int j = lg[r - l + 1];
+        return min(T[l][j], T[r - (1 << j) + 1][j])[1];
     }
 
-    int dist(int u, int v) {
-        return depth[u] + depth[v] - 2 * depth[get(u, v)];
-    }
+    int dist(int u, int v) { return d[u]+d[v]-2*d[get(u, v)]; }
 };

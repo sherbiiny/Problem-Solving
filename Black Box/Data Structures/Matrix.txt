@@ -1,40 +1,27 @@
-template<class T>
-struct Matrix {
-    int n, m;
-    vector<vector<T>> a;
+using Row = vector<int>;
+using Matrix = vector<Row>;
 
-    Matrix(int _n, int _m) {
-        n = _n, m = _m;
-        a.assign(n, vector<T>(m));
+Matrix mul(Matrix &a, Matrix &b) {
+    int n = a.size(), m = a[0].size(), k = b[0].size();
+    Matrix res(n, Row(k));
+    for(int i = 0; i < n; ++i)
+        for(int j = 0; j < k; ++j)
+            for(int o = 0; o < m; ++o) {
+                res[i][j] += 1ll * a[i][o] * b[o][j] % mod;
+                if(res[i][j] >= mod) res[i][j] -= mod;
+            }
+    return res;
+}
+
+Matrix power(Matrix a, ll b) {
+    int n = a.size();
+    Matrix res(n, Row(n));
+    for(int i = 0; i < n; ++i) res[i][i] = 1;
+
+    while(b) {
+        if(b & 1) res = mul(res, a);
+        a = mul(a, a), b >>= 1;
     }
 
-    Matrix operator *(const Matrix &b) {
-        int r = n, c = b.m, k = m;
-        Matrix res(r, c);
-        for(int i = 0; i < r; ++i)
-            for(int j = 0; j < c; ++j)
-                for(int o = 0; o < k; ++o)
-                    res.a[i][j] += a[i][o] * b.a[o][j];
-        return res;
-    }
-
-
-    friend Matrix power(Matrix mat, ll p) {
-        if(p == 0) {
-            Matrix ones(mat.n, mat.n);
-            for(int i = 0; i < mat.n; ++i)
-                ones.a[i][i] = 1;
-            return ones;
-        }
-        Matrix ret = power(mat * mat, p / 2);
-        if(p&1) ret = ret * mat;
-        return ret;
-    }
-
-    void display() {
-        for(int i = 0; i < n; ++i) {
-            for(int j = 0; j < m; ++j) cout << a[i][j] << ' ';
-            cout << endl;
-        }
-    }
-};
+    return res;
+}

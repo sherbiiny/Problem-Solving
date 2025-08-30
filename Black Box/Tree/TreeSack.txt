@@ -4,7 +4,7 @@ void getSz(int u, int p = 0) {
         if(v != p) getSz(v, u), sz[u] += sz[v];
 }
 
-void upd(int c, int t) {}
+void upd(int u, int t) {}
 
 void add(int u, int t, int p) {
     upd(u, t);

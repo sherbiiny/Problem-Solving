@@ -1,0 +1,16 @@
+const int N = 8, M = 8, L = 1 << N, R = 1 << M;
+
+int t[L][R];
+
+void upd(int x, int val = 1) { // 2^M
+    int l = x >> M, r = x & (R - 1);
+    for(int i = 0; i < R; ++i)
+        if((i & r) == r) t[l][i] += val;
+}
+
+int query(int x) { // 2^N
+    int l = x >> M, r = x & (R - 1), ans = 0;
+    for(int i = 0; i < L; ++i)
+        if((i & l) == i) ans += t[i][r];
+    return ans;
+}
