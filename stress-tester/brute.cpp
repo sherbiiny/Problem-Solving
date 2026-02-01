@@ -6,26 +6,44 @@ using ll = long long;
 #define endl '\n'
 #define int ll
 //====================//
-mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-#define getrand(l, r) uniform_int_distribution<long long>(l, r)(rng)
-
-vector<int> v;
-int count(int x) {
-    int ans = 0;
-    for(int i = 0; i < size(v); ++i)
-        for(int j = i + 1; j < size(v); ++j) {
-            if(!((v[i] + v[j]) % x) && !(v[i] * v[j] % x))
-                ++ans;
-        }
-
-    return ans;
-}
+const int oo = -2e18;
 
 void magic() {
-    int n, x; cin >> n >> x;
-    v.resize(n);
-    for(int &i: v) cin >> i;
-    cout << count(x) << endl;
+    int n, m; cin >> n >> m;
+    vector<int> a(n);
+    for (int &i: a) cin >> i, --i;
+
+    int lim = n * 2 + 2;
+    vector vis(n, vector<int>(lim)), dp(n, vector(lim, oo));
+
+    function<void(int, int)> move = [&](int u, int t) {
+        if (t >= lim) return;
+        vis[u][t] = 1;
+        move(a[u], t + 1);
+    };
+
+    while (m--) {
+        int x; cin >> x;
+        move(--x, 0);
+    }
+
+    for (int u = 0; u < n; ++u) dp[u][lim - 1] = vis[u][lim - 1] * oo;
+    for (int t = lim - 2; ~t; --t) {
+        for (int u = 0; u < n; ++u) {
+            if (vis[u][t]) continue;
+            dp[u][t] = max(dp[u][t + 1] + 1, dp[a[u]][t + 1]);
+        }
+    }
+
+    for (int u = 0; u < n; ++u) {
+        int bad = count(vis[u].begin(), vis[u].end(), 1);
+        if (!bad) {
+            cout << -2 << endl;
+            continue;
+        }
+
+        cout << max(dp[u][0], -1ll) << endl;
+    }
 }
 
 signed main() {

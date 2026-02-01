@@ -1,0 +1,11 @@
+typedef long double ld;
+//rotate (x,y) about (px,py) by thetarotate CounterClockwise
+pair<ld, ld> rotate(ld x, ld y, ld px, ld py,ld thetarotate){
+    ld theta1 = atan2((y - py),(x - px));
+    ld thetanew = theta1 + thetarotate;
+
+    ld distance = dist(px,py,x,y);
+    x = px + distance * cos(thetanew);
+    y = py + distance * sin(thetanew);
+    return {x,y};
+}

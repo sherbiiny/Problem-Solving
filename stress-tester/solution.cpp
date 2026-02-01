@@ -1,66 +1,68 @@
-// Author: _Sherbiny
+#include <bits/stdc++.h>
 
-#include "bits/stdc++.h"
 using namespace std;
-using ll = long long;
-#define endl '\n'
-//====================//
-const int N = 1e6 + 10;
-unordered_map<int, int> cnt[N];
-
-vector<int> pr, low;
-void Sieve(int n) {
-    low.assign(n + 1, 0);
-    for (int i = 2; i <= n; ++i) {
-        if (!low[i]) pr.push_back(low[i] = i);
-        for (int &j: pr) {
-            if (j > low[i] || i * j > n) break;
-            low[j * i] = j;
-        }
-    }
+void fastIO(void) {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
 }
 
-void magic() {
-    int n, x; cin >> n >> x;
-    vector<int> v(n);
-    for(int &i: v) cin >> i;
-    sort(v.begin(), v.end());
+typedef long long ll;
 
-    vector<array<int, 2>> a{{v[0], 1}};
-    for(int i = 1; i < n; ++i) {
-        if(v[i] == v[i - 1]) ++a.back()[1];
-        else a.push_back({v[i], 1});
+const int oo = 1e9;
+vector<int> to;
+int n, f;
+vector<vector<int>> has_patrol;
+
+void dfs(int u, int t) {
+    if(t > 2 * n) return;
+    has_patrol[u][t] = 1;
+    dfs(to[u], t + 1);
+}
+
+vector<vector<int>> dp;
+int func(int u, int t) {
+    if(has_patrol[u][t]) return -oo;
+    if(t >= 2 * n) return 0;
+    if(~dp[u][t])
+        return dp[u][t];
+    int ch1 = func(u, t + 1) + 1;
+    int ch2 = func(to[u], t + 1);
+    return dp[u][t] = max(ch1, ch2);
+}
+
+void solve(int tc) {
+
+    cin >> n >> f;
+    to.assign(n + 1, 0);
+    has_patrol.assign(n + 1, vector<int>(2 * n + 1));
+    for (int i = 1; i <= n; ++i) {
+        cin >> to[i];
+    }
+    vector<int> patrol(f);
+    for (int i = 0; i < f; ++i) {
+        cin >> patrol[i];
+        dfs(patrol[i], 0);
     }
 
-    auto upd = [&](int md, int &y, int &f) {
-        function<void(int, int)> go = [&](int r, int z) {
-            if(r == 1) {
-                cnt[md][z] += f;
-                return;
-            }
-            go(r / low[r], z * low[r]);
-            go(r / low[r], z);
-        };
-
-        go(y, 1);
-    };
-
-    ll ans = 0;
-    for(auto &[y, f]: a) {
-        int g = gcd(x, y), z = x / g, need = (x - y % x) % x;
-        ans += 1ll * f * cnt[need][z];
-        if(!(y * 2 % x) && !(1ll * y * y % x))
-            ans += 1ll * f * (f - 1) / 2;
-        upd(y % x, g, f);
+    dp.assign(n + 1, vector<int>(2 * n + 1, -1));
+    for (int i = 1; i <= n; ++i) {
+        int ans = func(i, 0);
+        if(ans <= -oo / 2) cout << -1 << '\n';
+        else if(ans == 2 * n) cout << -2 << '\n';
+        else cout << ans << '\n';
     }
 
-    cout << ans << endl;
 }
 
 signed main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0), cout.tie(0);
-    Sieve(N);
-    int t = 1;
-    while (t--) magic();
+
+    fastIO();
+    cout << setprecision(10) << fixed;
+    int t = 1; //cin >> t;
+
+    for (int i = 1; i <= t; ++i)
+        solve(i);
+
+    return 0;
 }

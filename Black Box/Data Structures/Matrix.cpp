@@ -1,0 +1,27 @@
+using Row = vector<int>;
+using Matrix = vector<Row>;
+
+Matrix mul(Matrix &a, Matrix &b) {
+    int n = a.size(), m = a[0].size(), k = b[0].size();
+    Matrix res(n, Row(k));
+    for(int i = 0; i < n; ++i)
+        for(int j = 0; j < k; ++j)
+            for(int o = 0; o < m; ++o) {
+                res[i][j] += 1ll * a[i][o] * b[o][j] % mod;
+                if(res[i][j] >= mod) res[i][j] -= mod;
+            }
+    return res;
+}
+
+Matrix power(Matrix a, ll b) {
+    int n = a.size();
+    Matrix res(n, Row(n));
+    for(int i = 0; i < n; ++i) res[i][i] = 1;
+
+    while(b) {
+        if(b & 1) res = mul(res, a);
+        a = mul(a, a), b >>= 1;
+    }
+
+    return res;
+}

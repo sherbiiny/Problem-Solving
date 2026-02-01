@@ -1,0 +1,18 @@
+struct BIT {
+    int n;
+    vector<int> t;
+
+    BIT(int n): n(n), t(n + 1) {}
+
+    void add(int i, int x) {
+        for(; i <= n; i |= i + 1) t[i] += x;
+    }
+
+    int get(int i) {
+        int res = 0;
+        for(; i >= 0; i = (i & i + 1) - 1) res += t[i];
+        return res;
+    }
+
+    int get(int l, int r) { return get(r) - get(l - 1); }
+};

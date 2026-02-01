@@ -1,0 +1,56 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="ArgumentSelectionDefects" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="ClangTidy" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="Clazy" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="ConstevalIfIsAlwaysConstant" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppAbstractFinalClass" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppCStyleCast" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppCVQualifierCanNotBeAppliedToReference" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppClassCanBeFinal" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppCompileTimeConstantCanBeReplacedWithBooleanConstant" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppConstValueFunctionReturnType" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppDiscardedPostfixOperatorResult" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppForLoopCanBeReplacedWithWhile" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppFunctionalStyleCast" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppIfCanBeReplacedByConstexprIf" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppInvalidLineContinuation" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppJoinDeclarationAndAssignment" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppLocalVariableMayBeConst" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppMemberFunctionMayBeConst" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppMemberFunctionMayBeStatic" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppNonExplicitConversionOperator" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppNonExplicitConvertingConstructor" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppParameterMayBeConst" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppParameterMayBeConstPtrOrRef" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppPassValueParameterByConstReference" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppRedundantNamespaceDefinition" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppReinterpretCastFromVoidPtr" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppReplaceMemsetWithZeroInitialization" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppReplaceTieWithStructuredBinding" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppSmartPointerVsMakeFunction" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppThrowExpressionCanBeReplacedWithRethrow" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppTooWideScope" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppTooWideScopeInitStatement" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppUseAlgorithmWithCount" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppUseAssociativeContains" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppUseElementsView" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppUseEraseAlgorithm" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppUseFamiliarTemplateSyntaxForGenericLambdas" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppUseRangeAlgorithm" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppUseStdSize" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppUseStructuredBinding" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppUseTypeTraitAlias" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppVariableCanBeMadeConstexpr" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="CppZeroConstantCanBeReplacedWithNullptr" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="IfStdIsConstantEvaluatedCanBeReplaced" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="PreprocessorComment" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+      <option name="processCode" value="true" />
+      <option name="processLiterals" value="true" />
+      <option name="processComments" value="true" />
+    </inspection_tool>
+    <inspection_tool class="StdIsConstantEvaluatedWillAlwaysEvaluateToConstant" enabled="false" level="WARNING" enabled_by_default="false" />
+  </profile>
+</component>

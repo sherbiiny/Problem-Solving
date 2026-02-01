@@ -1,7 +1,0 @@
-// sum of numbers divisible by d in range
-int calc(int l, int r, int d) {
-    --l;
-    ll sum = 1ll * d * (r / d) * (r / d + 1) / 2LL;
-    sum -= 1ll * d * (l / d) * (l / d + 1) / 2LL;
-    return sum;
-}
